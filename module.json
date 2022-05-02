@@ -25,7 +25,8 @@
   ],
   "scripts": [
     "scripts/lib/lib.js",
-    "scripts/lib/dialog.js"
+    "scripts/lib/dialog.js",
+    "scripts/lib/CEFoundryUtils.js"
   ],
   "styles": [
     "styles/module.css"

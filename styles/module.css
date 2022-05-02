@@ -1,0 +1,27 @@
+#friendly-combatants {
+    /* 
+    border: 1px solid var(--palette-dialog-background-dark, #782e22);
+    */
+    float:left; 
+    width:45%;
+}
+
+#hostile-combatants {
+    /* 
+    border: 1px solid var(--palette-dialog-background-dark, #782e22);
+    */
+    float:right;
+    width:45%;
+}
+
+.player-details {
+    border: 1px solid var(--palette-dialog-background-dark, #782e22);
+}
+
+#CombatEstimateDialog form ul {
+	display: flex;
+    flex-direction: column;
+	list-style: none;
+	margin: 0px;
+	padding: 0px;
+}
