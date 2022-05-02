@@ -16,6 +16,6 @@ Hooks.on("renderSidebarTab",(settings) => {
 	html.find(`#combat-round`).first().append(button)
 	html.find("#combatEstimateButton").on("click",async (e) => {
 		e.preventDefault();
-		// if (!canvas.sfDialog?.rendered) await canvas.sfDialog.render(true);
+		if (!canvas.CombatEstimateDialog?.rendered) await canvas.CombatEstimateDialog.render(true);
 	})
 });
