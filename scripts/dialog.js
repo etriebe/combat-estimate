@@ -1,6 +1,15 @@
-class CombatEstimateDialog extends FormApplication {
+import { EncounterUtils5e } from "./dnd5e/EncounterUtils5e.js";
+import { NPCActor5e } from "./dnd5e/NPCActor5e.js";
+import { PCActor5e } from "./dnd5e/PCActor5e.js";
+import { FoundryUtils } from "./utils/FoundryUtils.js";
+import { GeneralUtils } from "./utils/GeneralUtils.js";
+import { ActorUtils } from "./utils/ActorUtils.js";
+
+export class CombatEstimateDialog extends FormApplication {
 constructor() {
 		super();
+		this.friendlyCombatants = [];
+		this.hostileCombatants = [];
 	}
 
 	static get defaultOptions() {
@@ -37,8 +46,9 @@ constructor() {
 
 		for (let combatant of combatants)
 		{
-			let combatantDisposition = CEFoundryUtils.getCombatantDisposition(combatant);
+			let combatantDisposition = FoundryUtils.getCombatantDisposition(combatant);
 
+			let actorObject = null;
 			// Disposition is 1 for friendly, 0 for neutral, -1 for hostile
 			switch (combatantDisposition)
 			{
@@ -49,18 +59,22 @@ constructor() {
 								${combatant.name}
 							</div>
 						</li>`);
+					actorObject = ActorUtils.getPCActorObject(combatant.actor);
+					this.friendlyCombatants.push(actorObject);
 					break;
 				case CONST.TOKEN_DISPOSITIONS.NEUTRAL:
 					console.log(`Combatant ${combatant.name} is neutral`);
 					break;
 					case CONST.TOKEN_DISPOSITIONS.HOSTILE:
 					console.log(`Combatant ${combatant.name} is hostile`);
-					
+					actorObject = ActorUtils.getActorObject(combatant.actor);
+					this.hostileCombatants.push(actorObject);
 					$hostilesList.append(`<li class="combatant-hostile">
 							<div class="player-details">
 								${combatant.name}
 							</div>
 						</li>`);
+
 					break;
 				default:
 					console.log(`Combatant ${combatant.name} has unexpected state.`);

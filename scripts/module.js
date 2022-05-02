@@ -1,3 +1,5 @@
+import { CombatEstimateDialog } from "./dialog.js";
+
 Hooks.once('init', async function() {
 
 });
