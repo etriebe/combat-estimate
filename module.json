@@ -1,7 +1,7 @@
 {
-  "name": "module",
+  "name": "combat-estimate",
   "title": "New Module",
-  "description": "",
+  "description": "Module to estimate how combat will go for players vs currently in combat creatures.",
   "version": "This is auto replaced",
   "library": "false",
   "manifestPlusVersion": "1.0.0",
@@ -10,8 +10,8 @@
   "authors": [
     {
       "name": "The League of Extraordinary FVTT Developers",
-      "url": "https://github.com/League-of-Foundry-Developers",
-      "discord": "discordID#0001"
+      "url": "https://github.com/etriebe",
+      "discord": "thetreat#9487"
     }
   ],
   "dependencies": [
