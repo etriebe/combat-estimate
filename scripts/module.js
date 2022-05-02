@@ -13,9 +13,9 @@ Hooks.on("renderSidebarTab",(settings) => {
 	const button = `<button id="combatEstimateButton" style="flex-basis: auto;">
 	<i class="fas fa-calculator"></i> Combat Estimate
 	</button>`
-	html.find(`.header-actions`).first().append(button)
+	html.find(`#combat-round`).first().append(button)
 	html.find("#combatEstimateButton").on("click",async (e) => {
 		e.preventDefault();
 		// if (!canvas.sfDialog?.rendered) await canvas.sfDialog.render(true);
 	})
-  });
+});

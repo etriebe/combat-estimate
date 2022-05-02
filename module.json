@@ -1,15 +1,15 @@
 {
   "name": "combat-estimate",
-  "title": "New Module",
+  "title": "Combat Estimate - How dead are we?",
   "description": "Module to estimate how combat will go for players vs currently in combat creatures.",
-  "version": "This is auto replaced",
+  "version": "1.0.0",
   "library": "false",
   "manifestPlusVersion": "1.0.0",
   "minimumCoreVersion": "9",
   "compatibleCoreVersion": "9",
   "authors": [
     {
-      "name": "The League of Extraordinary FVTT Developers",
+      "name": "Eric Triebe",
       "url": "https://github.com/etriebe",
       "discord": "thetreat#9487"
     }
@@ -36,9 +36,9 @@
       "path": "languages/en.json"
     }
   ],
-  "url": "This is auto replaced",
-  "manifest": "This is auto replaced",
-  "download": "This is auto replaced",
+  "url": "https://github.com/etriebe/combat-estimate",
+  "manifest": "https://github.com/etriebe/combat-estimate/releases/latest/download/module.json",
+  "download": "https://github.com/etriebe/combat-estimate/releases/latest/download/module.zip",
   "license": "LICENSE",
   "readme": "README.md",
   "media": [
