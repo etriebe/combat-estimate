@@ -83,11 +83,13 @@ constructor() {
 		for (let actorObject of this.friendlyCombatants)
 		{
 			let combatSummaryHTML = this.getActorCombatSummary(actorObject, this.hostileCombatants, this.friendlyExpectedDamages);
+			let actorLink = TextEditor.enrichHTML(actorObject.actor.link);
 			$friendsList.append(`
 				<li class="combatant-friendly">
 					<div class="player-details">
-						${actorObject.actorname}
-						${combatSummaryHTML}
+					<span class="creature-button">${actorLink}</span>
+					<br/>
+					${combatSummaryHTML}
 					</div>
 				</li>`);
 		}
@@ -95,11 +97,13 @@ constructor() {
 		for (let actorObject of this.hostileCombatants)
 		{
 			let combatSummaryHTML = this.getActorCombatSummary(actorObject, this.friendlyCombatants, this.hostileExpectedDamages);
+			let actorLink = TextEditor.enrichHTML(actorObject.actor.link);
 			$hostilesList.append(`
 				<li class="combatant-hostile">
 					<div class="player-details">
-						${actorObject.actorname}
-						${combatSummaryHTML}
+					<span class="creature-button">${actorLink}</span>
+					<br/>
+					${combatSummaryHTML}
 					</div>
 				</li>`);
 		}
