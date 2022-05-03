@@ -2,7 +2,7 @@
 	/* 
 	border: 1px solid var(--palette-dialog-background-dark, #782e22);
 	*/
-	float:left; 
+	float:left;
 	width:45%;
 }
 
@@ -31,11 +31,19 @@
 #CombatEstimateDialog .encounter-attackbonustohit,
 #CombatEstimateDialog .encounter-averagedamage,
 #CombatEstimateDialog .encounter-hasareaofeffect,
-#CombatEstimateDialog .encounter-numberofattacks {
+#CombatEstimateDialog .encounter-numberofattacks,
+#CombatEstimateDialog .encounter-percentchance,
+#CombatEstimateDialog .encounter-expecteddamage,
+#CombatEstimateDialog .encounter-enemyhp,
+#CombatEstimateDialog .encounter-roundstodown {
 	border-top-width: 0px;
-	display: inline-block;
+    border-right: 1px solid var(--palette-app-background-dark, #f0f0e0);
+    border-left: 1px solid var(--palette-app-background-dark, #f0f0e0);
+	/* display:*/
+    display: inline-flex; 
 	padding: 0.25rem;
 	top: 20px;
+    font-size: 0.75rem;
 	background-color: var(--palette-app-background-dark, #191813);
 	color: var(--palette-app-background-dark-contrast-text, #f0f0e0);
 }

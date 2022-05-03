@@ -97,4 +97,10 @@ export class ActorUtils
       let currentDataObject = FoundryUtils.getDataObjectFromObject(actor);
       return currentDataObject.attributes.ac.value;
     }
+
+    static getActorCurrentHP(actor)
+    {
+      let currentDataObject = FoundryUtils.getDataObjectFromObject(actor);
+      return currentDataObject.attributes.hp.value;
+    }
 }
