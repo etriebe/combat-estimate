@@ -151,7 +151,7 @@ constructor() {
 		summaryStats.map(s => totalExpectedDamage += s);
 		let totalEnemyHP = this.getTotalCurrentEnemyHP(enemyCombatants);
 		let expectedRoundsToFinish = Math.ceil(totalEnemyHP / totalExpectedDamage);
-		combatSummaryHTML += `<span class="encounter-expecteddamage">Expected: ${totalExpectedDamage.toFixed(1)}dmg</span>`;
+		combatSummaryHTML += `<span class="encounter-expecteddamage">Expected: ${totalExpectedDamage.toFixed(1)} dmg</span>`;
 		combatSummaryHTML += `<span class="encounter-enemyhp">Enemy HP: ${totalEnemyHP}</span>`;
 		combatSummaryHTML += `<span class="encounter-roundstodown">Rounds to Down Enemies: ${expectedRoundsToFinish}</span>`;
 		return combatSummaryHTML;
