@@ -7,8 +7,6 @@ export class PCActor5e {
       this.actor = data;
       this.actorname = this.actor.name;
       this.actorid = this.actor._id;
-      this.creaturetype = ActorUtils.getCreatureTypeForActor(this.actor);
-      this.environment = ActorUtils.getActorEnvironments();
       this.combatdata = this.getCombatDataPerRound();
       this.classes = this.actor.classes;
       this.level = this.getPlayerClassLevel();
@@ -18,7 +16,7 @@ export class PCActor5e {
     getPlayerClassLevel()
     {
       let playerClasses = this.classes;
-      let playerClassList = this.getPlayerClassList(player);
+      let playerClassList = this.getPlayerClassList(playerClasses);
       let totalLevelCount = 0;
       for (let i = 0; i < playerClassList.length; i++)
       {

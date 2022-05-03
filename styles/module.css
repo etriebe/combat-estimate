@@ -1,27 +1,41 @@
 #friendly-combatants {
-    /* 
-    border: 1px solid var(--palette-dialog-background-dark, #782e22);
-    */
-    float:left; 
-    width:45%;
+	/* 
+	border: 1px solid var(--palette-dialog-background-dark, #782e22);
+	*/
+	float:left; 
+	width:45%;
 }
 
 #hostile-combatants {
-    /* 
-    border: 1px solid var(--palette-dialog-background-dark, #782e22);
-    */
-    float:right;
-    width:45%;
+	/* 
+	border: 1px solid var(--palette-dialog-background-dark, #782e22);
+	*/
+	float:right;
+	width:45%;
 }
 
 .player-details {
-    border: 1px solid var(--palette-dialog-background-dark, #782e22);
+	border: 1px solid var(--palette-dialog-background-dark, #782e22);
 }
 
 #CombatEstimateDialog form ul {
 	display: flex;
-    flex-direction: column;
+	flex-direction: column;
 	list-style: none;
 	margin: 0px;
 	padding: 0px;
+}
+
+#CombatEstimateDialog .encounter-attacknumber,
+#CombatEstimateDialog .encounter-attackdescription,
+#CombatEstimateDialog .encounter-attackbonustohit,
+#CombatEstimateDialog .encounter-averagedamage,
+#CombatEstimateDialog .encounter-hasareaofeffect,
+#CombatEstimateDialog .encounter-numberofattacks {
+	border-top-width: 0px;
+	display: inline-block;
+	padding: 0.25rem;
+	top: 20px;
+	background-color: var(--palette-app-background-dark, #191813);
+	color: var(--palette-app-background-dark-contrast-text, #f0f0e0);
 }

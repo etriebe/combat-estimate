@@ -91,4 +91,10 @@ export class ActorUtils
         environmentArray = environmentArray.map(e => e.trim());
         return environmentArray;
     }
+
+    static getActorArmorClass(actor)
+    {
+      let currentDataObject = FoundryUtils.getDataObjectFromObject(actor);
+      return currentDataObject.attributes.ac.value;
+    }
 }
