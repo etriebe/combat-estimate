@@ -38,7 +38,7 @@ constructor() {
 		const html = this.element;
 		let $friendsList = html.find('#friendly-combatants ul').first();
 		let $hostilesList = html.find('#hostile-combatants ul').first();
-		if (!game.combat.isActive)
+		if (!game.combat || !game.combat.isActive)
 		{
 			console.log(`No combat active.`)
 			return;
@@ -130,9 +130,10 @@ constructor() {
 			let expectedDamage = currentAttack.averagedamage * currentAttack.numberofattacks * getChanceToHit;
 			totalExpectedDamage += expectedDamage;
 			combatSummaryHTML += `<li class="single-attack"><div>`;
-			combatSummaryHTML += `<span class="encounter-attacknumber">#${attackNumber}</span>`;
+			// combatSummaryHTML += `<span class="encounter-attacknumber">#${attackNumber}</span>`;
 			combatSummaryHTML += `<span class="encounter-attackdescription">${currentAttack.attackdescription}</span>`;
 			// combatSummaryHTML += `<span class="encounter-attackbonustohit">Bonus: ${currentAttack.attackbonustohit}</span>`;
+			combatSummaryHTML += `<span class="encounter-numberofattacks"> x ${currentAttack.numberofattacks}</span>`;
 			combatSummaryHTML += `<span class="encounter-averagedamage">Damage: ${currentAttack.averagedamage * currentAttack.numberofattacks}</span>`;
 			// combatSummaryHTML += `<span class="encounter-numberofattacks"># of Attacks: ${currentAttack.numberofattacks}</span>`;
 			combatSummaryHTML += `<span class="encounter-percentchance">% to hit: ${(getChanceToHit * 100).toFixed(0)}%</span>`;
