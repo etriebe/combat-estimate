@@ -3,7 +3,7 @@
 	border: 1px solid var(--palette-dialog-background-dark, #782e22);
 	*/
 	float:left;
-	width:45%;
+	width:49%;
 }
 
 #hostile-combatants {
@@ -11,7 +11,7 @@
 	border: 1px solid var(--palette-dialog-background-dark, #782e22);
 	*/
 	float:right;
-	width:45%;
+	width:49%;
 }
 
 .player-details {

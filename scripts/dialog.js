@@ -93,6 +93,8 @@ constructor() {
 					</div>
 				</li>`);
 		}
+		let $friendlySummary = html.find('#friendly-summary').first();
+		$friendlySummary.append(this.getCombatSummary(this.friendlyExpectedDamages, this.hostileCombatants));
 		
 		for (let actorObject of this.hostileCombatants)
 		{
