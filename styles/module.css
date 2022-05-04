@@ -83,8 +83,9 @@
 #CombatEstimateDialog .legend-item {
 	display: list-item;
 }
+/*
 #CombatEstimateDialog .legend {
-	/* display: list-item;*/
-	position: absolute;
+	position: relative;
 	bottom: 20px;
 }
+*/

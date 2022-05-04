@@ -2,8 +2,10 @@ import { FoundryUtils } from "../utils/FoundryUtils.js";
 import { GeneralUtils } from "../utils/GeneralUtils.js";
 import { ActorUtils } from "../utils/ActorUtils.js";
 
-export class NPCActor5e {
-    constructor(data) {
+export class NPCActor5e
+{
+    constructor(data)
+    {
         this.actor = data;
         this.actorname = this.actor.name;
         this.actorid = this.actor._id;

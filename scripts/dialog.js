@@ -5,8 +5,10 @@ import { FoundryUtils } from "./utils/FoundryUtils.js";
 import { GeneralUtils } from "./utils/GeneralUtils.js";
 import { ActorUtils } from "./utils/ActorUtils.js";
 
-export class CombatEstimateDialog extends FormApplication {
-constructor() {
+export class CombatEstimateDialog extends FormApplication
+{
+	constructor()
+	{
 		super();
 		this.friendlyCombatants = [];
 		this.hostileCombatants = [];
@@ -14,22 +16,24 @@ constructor() {
 		this.hostileExpectedDamages = [];
 	}
 
-	static get defaultOptions() {
+	static get defaultOptions()
+	{
 		let dialogTemplate = `modules/combat-estimate/templates/CombatEstimateDialog.hbs`;
-		return { 
+		return {
 			...super.defaultOptions,
 			title: game.i18n.localize('CE.dialog.title'),
 			id: "CombatEstimateDialog",
 			template: dialogTemplate,
 			resizable: true,
 			width: window.innerWidth > 800 ? 800 : window.innerWidth - 100,
-			height: window.innerHeight > 800 ? 800 : window.innerHeight - 100
-		}
+			height: window.innerHeight > 900 ? 900 : window.innerHeight - 100
+		};
 	}
 
-	async activateListeners(html) {
+	async activateListeners(html)
+	{
 		super.activateListeners(html);
-		const _this=this;
+		const _this = this;
 		this.populateCombatants();
 	}
 
@@ -40,7 +44,7 @@ constructor() {
 		let $hostilesList = html.find('#hostile-combatants ul').first();
 		if (!game.combat || !game.combat.isActive)
 		{
-			console.log(`No combat active.`)
+			console.log(`No combat active.`);
 			return;
 		}
 
@@ -69,7 +73,7 @@ constructor() {
 				case CONST.TOKEN_DISPOSITIONS.NEUTRAL:
 					console.log(`Combatant ${combatant.name} is neutral`);
 					break;
-					case CONST.TOKEN_DISPOSITIONS.HOSTILE:
+				case CONST.TOKEN_DISPOSITIONS.HOSTILE:
 					console.log(`Combatant ${combatant.name} is hostile`);
 					actorObject = ActorUtils.getActorObject(combatant.actor);
 					this.hostileCombatants.push(actorObject);
@@ -95,7 +99,7 @@ constructor() {
 		}
 		let $friendlySummary = html.find('#friendly-summary').first();
 		$friendlySummary.append(this.getCombatSummary(this.friendlyExpectedDamages, this.hostileCombatants));
-		
+
 		for (let actorObject of this.hostileCombatants)
 		{
 			let combatSummaryHTML = this.getActorCombatSummary(actorObject, this.friendlyCombatants, this.hostileExpectedDamages);
@@ -240,6 +244,7 @@ constructor() {
 	}
 }
 
-Hooks.once('ready', async () => {
+Hooks.once('ready', async () =>
+{
 	canvas.CombatEstimateDialog = new CombatEstimateDialog();
 });
