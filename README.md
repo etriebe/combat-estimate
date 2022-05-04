@@ -16,11 +16,14 @@
 
 ![](images/2022-05-04-08-57-33.png)
 
-4. Profit! That's really it!
+4. Profit! That's really it! The dialog should load very quickly and display a rough estimate of how much damage each creature will do on each attack if it hits, as well as how likely they are to hit against enemy armor classes/saving throws (still a work in progress).
+
+![](images/2022-05-04-08-59-57.png)
 
 ## Current Limitations and planned work: 
 
+1. Calculating saving throws
 1. Applying resistances
-2. Legendary actions
-3. Lair actions
-4. Player class features: Great weapon master, sharpshooter, sneak attack, etc. 
+1. Legendary actions
+1. Lair actions
+1. Player class features: Great weapon master, sharpshooter, sneak attack, etc. 
