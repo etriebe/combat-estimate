@@ -113,14 +113,15 @@ export class ActorUtils
     return currentDataObject.attributes.hp.value;
   }
 
-  static getCombatDataPerRound(actorObject)
+  static getCombatDataPerRound(actorObject, activationType)
   {
     let allAttackResultObjects = [];
     let actor = actorObject.actor;
     try
     {
-      let attackList = actor.items.filter(i => (i.type.toLowerCase() === "weapon" || i.type.toLowerCase() === "feat")
-        && i.name.toLowerCase() != "multiattack" && i.name.toLowerCase() != "extra attack");
+      let attackList = actor.items.filter(i => (i.type.toLowerCase() === "weapon" || i.type.toLowerCase() === "feat") &&
+        (!activationType || i.data.data.activation.type === activationType) &&
+        i.name.toLowerCase() != "multiattack" && i.name.toLowerCase() != "extra attack");
       let multiAttack = actor.items.filter(i => i.name.toLowerCase() === "multiattack" || i.name.toLowerCase() === "extra attack");
       if (multiAttack && multiAttack.length > 0)
       {
@@ -228,6 +229,10 @@ export class ActorUtils
       else
       {
         let bestAttackObject = ActorUtils.getBestSingleAttack(attackList, actorObject);
+        if (!bestAttackObject)
+        {
+          return allAttackResultObjects;
+        }
         let currentAttackObject = ActorUtils.getInfoForAttackObject(bestAttackObject, 1, actorObject);
         if (bestAttackObject)
         {
@@ -283,13 +288,13 @@ export class ActorUtils
     return totalDamage;
   }
 
-  static getSpellDataPerRound(actorObject)
+  static getSpellDataPerRound(actorObject, activationType)
   {
     let allSpellResultObjects = [];
     let actor = actorObject.actor;
     try
     {
-      let spellList = actor.items.filter(i => (i.type.toLowerCase() === "spell"));
+      let spellList = actor.items.filter(i => (i.type.toLowerCase() === "spell") && (!activationType || (i.data.data.activation.type === activationType)));
       let bestSpellObject = null;
       let maxDamage = 0;
       for (let i = 0; i < spellList.length; i++)
@@ -552,8 +557,8 @@ export class ActorUtils
 
     if (attackObject.hasSave)
     {
-      currentAttackResult["savingthrowdc"] = ActorUtils.getSaveDC(spellObject);
-      currentAttackResult["savingthrowtype"] = ActorUtils.getSavingThrowType(spellObject);
+      currentAttackResult["savingthrowdc"] = ActorUtils.getSaveDC(attackObject);
+      currentAttackResult["savingthrowtype"] = ActorUtils.getSavingThrowType(attackObject);
     }
     else
     {

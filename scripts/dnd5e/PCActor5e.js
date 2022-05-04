@@ -9,8 +9,9 @@ export class PCActor5e
     this.actor = data;
     this.actorname = this.actor.name;
     this.actorid = this.actor._id;
-    this.attackdata = ActorUtils.getCombatDataPerRound(this);
-    this.spelldata = ActorUtils.getSpellDataPerRound(this);
+    this.attackdata = ActorUtils.getCombatDataPerRound(this, "action");
+    this.bonusattackdata = ActorUtils.getCombatDataPerRound(this, "bonus");
+    this.spelldata = ActorUtils.getSpellDataPerRound(this, "action");
     this.combatdata = ActorUtils.getBestCombat(this);
     this.classes = this.actor.classes;
     this.level = this.getPlayerClassLevel();
