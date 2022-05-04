@@ -136,9 +136,9 @@ constructor() {
 			combatSummaryHTML += `<span class="encounter-attackdescription">${currentAttack.attackdescription}</span>`;
 			// combatSummaryHTML += `<span class="encounter-attackbonustohit">Bonus: ${currentAttack.attackbonustohit}</span>`;
 			combatSummaryHTML += `<span class="encounter-numberofattacks"> x ${currentAttack.numberofattacks}</span>`;
-			combatSummaryHTML += `<span class="encounter-averagedamage">Damage: ${currentAttack.averagedamage * currentAttack.numberofattacks}</span>`;
+			combatSummaryHTML += `<span class="encounter-averagedamage">AvDmg: ${currentAttack.averagedamage * currentAttack.numberofattacks}</span>`;
 			// combatSummaryHTML += `<span class="encounter-numberofattacks"># of Attacks: ${currentAttack.numberofattacks}</span>`;
-			combatSummaryHTML += `<span class="encounter-percentchance">% to hit: ${(getChanceToHit * 100).toFixed(0)}%</span>`;
+			combatSummaryHTML += `<span class="encounter-percentchance">% Hit: ${(getChanceToHit * 100).toFixed(0)}%</span>`;
 			combatSummaryHTML += `</div></li>`;
 			attackNumber++;
 		}
@@ -154,9 +154,9 @@ constructor() {
 		summaryStats.map(s => totalExpectedDamage += s);
 		let totalEnemyHP = this.getTotalCurrentEnemyHP(enemyCombatants);
 		let expectedRoundsToFinish = Math.ceil(totalEnemyHP / totalExpectedDamage);
-		combatSummaryHTML += `<span class="encounter-expecteddamage">Expected: ${totalExpectedDamage.toFixed(1)} dmg</span>`;
+		combatSummaryHTML += `<span class="encounter-expecteddamage">ExDmg: ${totalExpectedDamage.toFixed(1)} dmg</span>`;
 		combatSummaryHTML += `<span class="encounter-enemyhp">Enemy HP: ${totalEnemyHP}</span>`;
-		combatSummaryHTML += `<span class="encounter-roundstodown">Rounds to Down Enemies: ${expectedRoundsToFinish}</span>`;
+		combatSummaryHTML += `<span class="encounter-roundstodown">Rounds to down: ${expectedRoundsToFinish}</span>`;
 		return combatSummaryHTML;
 	}
 
