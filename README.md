@@ -27,3 +27,4 @@
 1. Legendary actions
 1. Lair actions
 1. Player class features: Great weapon master, sharpshooter, sneak attack, etc. 
+1. Taking into account active spell slots
