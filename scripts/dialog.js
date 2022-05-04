@@ -134,7 +134,6 @@ constructor() {
 			combatSummaryHTML += `<li class="single-attack"><div>`;
 			// combatSummaryHTML += `<span class="encounter-attacknumber">#${attackNumber}</span>`;
 			combatSummaryHTML += `<span class="encounter-attackdescription">${currentAttack.attackdescription}</span>`;
-			// combatSummaryHTML += `<span class="encounter-attackbonustohit">Bonus: ${currentAttack.attackbonustohit}</span>`;
 			combatSummaryHTML += `<span class="encounter-numberofattacks"> x ${currentAttack.numberofattacks}</span>`;
 			combatSummaryHTML += `<span class="encounter-averagedamage">AvDmg: ${currentAttack.averagedamage * currentAttack.numberofattacks}</span>`;
 			// combatSummaryHTML += `<span class="encounter-numberofattacks"># of Attacks: ${currentAttack.numberofattacks}</span>`;
@@ -162,20 +161,42 @@ constructor() {
 
 	getAttackChanceToHit(currentAttack, enemyCombatants)
 	{
-		let attackBonus = currentAttack.attackbonustohit;
-		let attackChances = [];
-		let attackChanceTotal = 0;
-		for (let i = 0; i < enemyCombatants.length; i++)
+		if (currentAttack.attackbonustohit)
 		{
-			let currentEnemy = enemyCombatants[i];
-			let enemyArmorClass = ActorUtils.getActorArmorClass(currentEnemy.actor);
-			let totalAvailableRollsToHit = 20 - (enemyArmorClass - 1) + attackBonus;
-			let chanceToHit = totalAvailableRollsToHit / 20.0;
-			attackChanceTotal += chanceToHit;
-			attackChances.push(chanceToHit);
+			let attackBonus = currentAttack.attackbonustohit;
+			let attackChances = [];
+			let attackChanceTotal = 0;
+			for (let i = 0; i < enemyCombatants.length; i++)
+			{
+				let currentEnemy = enemyCombatants[i];
+				let enemyArmorClass = ActorUtils.getActorArmorClass(currentEnemy.actor);
+				let totalAvailableRollsToHit = 20 - (enemyArmorClass - 1) + attackBonus;
+				let chanceToHit = totalAvailableRollsToHit / 20.0;
+				attackChanceTotal += chanceToHit;
+				attackChances.push(chanceToHit);
+			}
+			let averageChanceToHit = attackChanceTotal / attackChances.length;
+			return averageChanceToHit;
 		}
-		let averageChanceToHit = attackChanceTotal / attackChances.length;
-		return averageChanceToHit;
+		else
+		{
+			// Saving throw workflow
+			let savingThrowDC = currentAttack.savingthrowdc;
+			let savingThrowType = currentAttack.savingthrowtype;
+			let attackChances = [];
+			let attackChanceTotal = 0;
+			for (let i = 0; i < enemyCombatants.length; i++)
+			{
+				let currentEnemy = enemyCombatants[i];
+				let enemySavingThrowBonus = ActorUtils.getActorSavingThrowModifier(currentEnemy.actor, savingThrowType);
+				let totalAvailableRollsToHit = 20 - (savingThrowDC - 1) + enemySavingThrowBonus;
+				let chanceToHit = totalAvailableRollsToHit / 20.0;
+				attackChanceTotal += chanceToHit;
+				attackChances.push(chanceToHit);
+			}
+			let averageChanceToHit = attackChanceTotal / attackChances.length;
+			return averageChanceToHit;
+		}
 	}
 
 	getTotalCurrentEnemyHP(enemyCombatants)

@@ -99,6 +99,12 @@ export class ActorUtils
       return currentDataObject.attributes.ac.value;
     }
 
+    static getActorSavingThrowModifier(actor, savingThrowType)
+    {
+      let currentDataObject = FoundryUtils.getDataObjectFromObject(actor);
+      return eval(`currentDataObject.abilities.${savingThrowType}.save`);
+    }
+
     static getActorCurrentHP(actor)
     {
       let currentDataObject = FoundryUtils.getDataObjectFromObject(actor);
@@ -418,9 +424,13 @@ export class ActorUtils
 
       if (spellObject.hasSave)
       {
-          attackBonus = ActorUtils.getSaveDC(spellObject) - 10;
+          currentAttackResult["savingthrowdc"] = ActorUtils.getSaveDC(spellObject);
+          currentAttackResult["savingthrowtype"] = ActorUtils.getSavingThrowType(spellObject);
       }
-      currentAttackResult["attackbonustohit"] = attackBonus;
+      else
+      {
+          currentAttackResult["attackbonustohit"] = attackBonus;
+      }
       currentAttackResult["numberofattacks"] = 1;
       currentAttackResult["hasareaofeffect"] = spellObject.hasAreaTarget;
       currentAttackResult["attackdescription"] = spellObject.name;
@@ -501,9 +511,13 @@ export class ActorUtils
 
       if (attackObject.hasSave)
       {
-          attackBonus = ActorUtils.getSaveDC(attackObject) - 10;
+          currentAttackResult["savingthrowdc"] = ActorUtils.getSaveDC(spellObject);
+          currentAttackResult["savingthrowtype"] = ActorUtils.getSavingThrowType(spellObject);
       }
-      currentAttackResult["attackbonustohit"] = attackBonus;
+      else
+      {
+          currentAttackResult["attackbonustohit"] = attackBonus;
+      }
       currentAttackResult["numberofattacks"] = numberOfAttacks;
       currentAttackResult["hasareaofeffect"] = attackObject.hasAreaTarget;
       currentAttackResult["attackdescription"] = attackObject.name;
@@ -519,6 +533,11 @@ export class ActorUtils
   static getSaveDC(attackObject)
   {
       return FoundryUtils.getDataObjectFromObject(attackObject).save.dc;
+  }
+
+  static getSavingThrowType(attackObject)
+  {
+      return FoundryUtils.getDataObjectFromObject(attackObject).save.ability;
   }
 
   static getCantripMultiplier(actorObject)

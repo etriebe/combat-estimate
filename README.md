@@ -16,7 +16,7 @@
 
 ![](images/2022-05-04-08-57-33.png)
 
-4. Profit! That's really it! The dialog should load very quickly and display a rough estimate of how much damage each creature will do on each attack if it hits, as well as how likely they are to hit against enemy armor classes/saving throws (still a work in progress).
+4. Profit! That's really it! The dialog should load very quickly and display a rough estimate of how much damage each creature will do on each attack if it hits, as well as how likely they are to hit against enemy armor classes (Saving throws are still a work in progress).
 
 ![](images/2022-05-04-08-59-57.png)
 
