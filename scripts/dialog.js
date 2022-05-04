@@ -129,7 +129,19 @@ constructor() {
 		{
 			let currentAttack = actorObject.combatdata[i];
 			let getChanceToHit = this.getAttackChanceToHit(currentAttack, enemyCombatants);
-			let expectedDamage = currentAttack.averagedamage * currentAttack.numberofattacks * getChanceToHit;
+			let halfDamageOnSave = this.getAttackHalfDamageOnSave(currentAttack);
+			let expectedDamage = (currentAttack.averagedamage * currentAttack.numberofattacks * getChanceToHit);
+			if (halfDamageOnSave)
+			{
+				expectedDamage = expectedDamage * 1.5;
+			}
+
+			// assume 2 targets get hit with any area of effect if there are more than one enemy combatant
+			if (currentAttack.hasareaofeffect && enemyCombatants.length > 1)
+			{
+				expectedDamage = expectedDamage * 2;
+			}
+
 			totalExpectedDamage += expectedDamage;
 			combatSummaryHTML += `<li class="single-attack"><div>`;
 			// combatSummaryHTML += `<span class="encounter-attacknumber">#${attackNumber}</span>`;
@@ -138,6 +150,7 @@ constructor() {
 			combatSummaryHTML += `<span class="encounter-averagedamage">AvDmg: ${currentAttack.averagedamage * currentAttack.numberofattacks}</span>`;
 			// combatSummaryHTML += `<span class="encounter-numberofattacks"># of Attacks: ${currentAttack.numberofattacks}</span>`;
 			combatSummaryHTML += `<span class="encounter-percentchance">% Hit: ${(getChanceToHit * 100).toFixed(0)}%</span>`;
+			combatSummaryHTML += `<span class="encounter-percentchance">ExDmg: ${expectedDamage.toFixed(1)}</span>`;
 			combatSummaryHTML += `</div></li>`;
 			attackNumber++;
 		}
@@ -196,6 +209,21 @@ constructor() {
 			}
 			let averageChanceToHit = attackChanceTotal / attackChances.length;
 			return averageChanceToHit;
+		}
+	}
+
+	getAttackHalfDamageOnSave(currentAttack)
+	{
+		let attackObject = currentAttack.attackobject;
+		let attackObjectDataObject = FoundryUtils.getDataObjectFromObject(attackObject);
+		let description = attackObjectDataObject.description.value;
+		if (description.match(/\bhalf\b/gm))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
 		}
 	}
 
