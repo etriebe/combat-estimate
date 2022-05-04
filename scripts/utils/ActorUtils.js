@@ -111,7 +111,6 @@ export class ActorUtils
       return currentDataObject.attributes.hp.value;
     }
 
-    
     static getCombatDataPerRound(actorObject) {
       let allAttackResultObjects = [];
       let actor = actorObject.actor;
@@ -434,6 +433,8 @@ export class ActorUtils
       currentAttackResult["numberofattacks"] = 1;
       currentAttackResult["hasareaofeffect"] = spellObject.hasAreaTarget;
       currentAttackResult["attackdescription"] = spellObject.name;
+      currentAttackResult["attackobject"] = spellObject;
+
       if (isNaN(attackBonus))
       {
           return;
@@ -521,6 +522,7 @@ export class ActorUtils
       currentAttackResult["numberofattacks"] = numberOfAttacks;
       currentAttackResult["hasareaofeffect"] = attackObject.hasAreaTarget;
       currentAttackResult["attackdescription"] = attackObject.name;
+      currentAttackResult["attackobject"] = attackObject;
 
       if (isNaN(attackBonus) || isNaN(numberOfAttacks) || isNaN(totalDamageForAttack))
       {
