@@ -343,6 +343,8 @@ export class ActorUtils
     let totalAttackDamage = 0;
     let totalSpellDamage = 0;
 
+    let bestCombatRound = [];
+
     for (let attack of actorObject.attackdata)
     {
       try
@@ -385,12 +387,18 @@ export class ActorUtils
 
     if (totalAttackDamage > totalSpellDamage)
     {
-      return actorObject.attackdata;
+      bestCombatRound = actorObject.attackdata;
     }
     else
     {
-      return actorObject.spelldata;
+      bestCombatRound = actorObject.spelldata;
     }
+
+    if (actorObject.bonusattackdata && actorObject.bonusattackdata.length > 0)
+    {
+      bestCombatRound = bestCombatRound.concat(actorObject.bonusattackdata);
+    }
+    return bestCombatRound;
   }
 
   static getModifierFromAttributeScore(attributeScore)
