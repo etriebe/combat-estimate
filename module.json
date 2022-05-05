@@ -3,6 +3,7 @@
   "title": "Combat Estimate - How dead are we?",
   "description": "Module to estimate how combat will go for players vs currently in combat creatures.",
   "version": "1.0.0",
+  "system": ["dnd5e"],
   "library": "false",
   "manifestPlusVersion": "1.0.0",
   "minimumCoreVersion": "9",
