@@ -8,7 +8,7 @@
 <!--- ![Forge Installs](https://img.shields.io/badge/dynamic/json?label=Forge%20Installs&query=package.installs&suffix=%25&url=https%3A%2F%2Fforge-vtt.com%2Fapi%2Fbazaar%2Fpackage%2F<your-module-name>&colorB=4aa94a) -->
 
 
-# How to Combat-Estimate
+# How to use Combat-Estimate
 
 1. Create a combat on your scene
 2. Open the combat blade on the side bar
@@ -26,5 +26,5 @@
 1. Applying resistances
 1. Legendary actions
 1. Lair actions
-1. Player class features: Great weapon master, sharpshooter, sneak attack, etc. 
+1. Player class features: Great weapon master, sharpshooter, etc. 
 1. Taking into account active spell slots
