@@ -50,5 +50,14 @@ export class GeneralUtils
     let cTime = current.getHours() + ":" + current.getMinutes() + ":" + current.getSeconds();
     let dateTime = cDate + ' ' + cTime;
     return dateTime;
-  };
+  }
+
+  static safeArrayAppend(originalArray, arrayToAppend)
+  {
+    if (arrayToAppend && arrayToAppend.length > 0)
+    {
+      originalArray = originalArray.concat(arrayToAppend);
+    }
+    return originalArray;
+  }
 }

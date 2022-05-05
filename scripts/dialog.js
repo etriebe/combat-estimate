@@ -218,7 +218,7 @@ export class CombatEstimateDialog extends FormApplication
 
 	getAttackHalfDamageOnSave(currentAttack)
 	{
-		let attackObject = currentAttack.attackobject;
+		let attackObject = currentAttack.attackobject ?? currentAttack.specialobject;
 		let attackObjectDataObject = FoundryUtils.getDataObjectFromObject(attackObject);
 		let description = attackObjectDataObject.description.value;
 		if (description.match(/\bhalf\b/gm))

@@ -1,6 +1,7 @@
 import { NPCActor5e } from "../dnd5e/NPCActor5e.js";
 import { PCActor5e } from "../dnd5e/PCActor5e.js";
 import { FoundryUtils } from "./FoundryUtils.js";
+import { GeneralUtils } from "./GeneralUtils.js";
 
 export class ActorUtils
 {
@@ -338,6 +339,94 @@ export class ActorUtils
     return allSpellResultObjects;
   }
 
+  static getSpecialFeatures(actorObject)
+  {
+    let specialFeatureList = [];
+    let actor = actorObject.actor;
+    let actorDataObject = FoundryUtils.getDataObjectFromObject(actor);
+    let sneakAttack = ActorUtils.getActorFeature(actorObject, "sneak attack");
+    if (sneakAttack)
+    {
+      let sneakAttackDamage = 0;
+      if (actor.classes && actor.classes.rogue)
+      {
+        let classDataObject = FoundryUtils.getDataObjectFromObject(actor.classes.rogue);
+        sneakAttackDamage = Math.ceil(classDataObject.levels / 2) * 3.5;
+      }
+      else
+      {
+        let sneakAttackDataObject = FoundryUtils.getDataObjectFromObject(sneakAttack);
+        let sneakAttackFormula = sneakAttackDataObject.damage.parts[0][0];
+        let evaluatedSneakAttack = ActorUtils.resolveMacrosInRollFormula(actorObject, sneakAttackFormula);
+        sneakAttackDamage = ActorUtils.getAverageDamageFromDescription(evaluatedSneakAttack, actorDataObject.abilities.dex.mod);
+      }
+
+      // let sneakAttackDataObject = FoundryUtils.getDataObjectFromObject(sneakAttack);
+      // let sneakAttackFormula = sneakAttackDataObject.damage.parts[0][0];
+      // let evaluatedSneakAttack = ActorUtils.resolveMacrosInRollFormula(actorObject, sneakAttackFormula);
+      // let sneakAttackDamage = ActorUtils.getAverageDamageFromDescription(evaluatedSneakAttack, actorDataObject.abilities.dex.mod);
+      let bestAttackBonus = ActorUtils.getBestChanceAttack(actorObject);
+
+      let currentAttackResult = {};
+      currentAttackResult["averagedamage"] = sneakAttackDamage;
+      currentAttackResult["attackbonustohit"] = bestAttackBonus;
+      currentAttackResult["numberofattacks"] = 1;
+      currentAttackResult["hasareaofeffect"] = false;
+      currentAttackResult["attackdescription"] = sneakAttack.name;
+      currentAttackResult["specialobject"] = sneakAttack;
+      specialFeatureList.push(currentAttackResult);
+    }
+    return specialFeatureList;
+  }
+
+  static resolveMacrosInRollFormula(actorObject, rollDescription)
+  {
+    let macroRegex = /@(?<macroValue>\S+)/gm;
+    let macroMatches = [...rollDescription.matchAll(macroRegex)];
+    let evaluatedRollDescription = rollDescription;
+    for (let i = 0; i < macroMatches.length; i++)
+    {
+      try
+      {
+        let currentMatch = macroMatches[i];
+        let currentMatchGroups = currentMatch.groups;
+        let macroValue = currentMatchGroups.macroValue;
+        let actorDataObject = FoundryUtils.getDataObjectFromObject(actorObject.actor);
+        let evaluatedMacroValue = eval(`actorDataObject.${macroValue}`);
+        evaluatedRollDescription = evaluatedRollDescription.replaceAll(currentMatch[0], evaluatedMacroValue);
+      }
+      catch (error)
+      {
+        console.warn(`Unable to evaluate macros in rollDescription ${rollDescription}`);
+        console.warn(error);
+      }
+    }
+
+    return evaluatedRollDescription;
+  }
+
+  static getBestChanceAttack(actorObject)
+  {
+    let bestChance = 0;
+    for (let i = 0; i < actorObject.attackdata.length; i++)
+    {
+      let currentAttack = actorObject.attackdata[i];
+      let currentAttackBonusToHit = currentAttack.attackbonustohit;
+      if (currentAttackBonusToHit > bestChance)
+      {
+        bestChance = currentAttackBonusToHit;
+      }
+    }
+    return bestChance;
+  }
+
+  static getActorFeature(actorObject, featureName)
+  {
+    let actor = actorObject.actor;
+    let specialFeatures = actor.items.find(i => i.name.toLowerCase() === featureName);
+    return specialFeatures;
+  }
+
   static getBestCombat(actorObject)
   {
     let totalAttackDamage = 0;
@@ -394,10 +483,9 @@ export class ActorUtils
       bestCombatRound = actorObject.spelldata;
     }
 
-    if (actorObject.bonusattackdata && actorObject.bonusattackdata.length > 0)
-    {
-      bestCombatRound = bestCombatRound.concat(actorObject.bonusattackdata);
-    }
+    bestCombatRound = GeneralUtils.safeArrayAppend(bestCombatRound, actorObject.bonusattackdata);
+    bestCombatRound = GeneralUtils.safeArrayAppend(bestCombatRound, actorObject.specialfeatures);
+
     return bestCombatRound;
   }
 
@@ -650,6 +738,7 @@ export class ActorUtils
 
     // deal with modules that use a Math.floor function but Math. isn't specified
     damageDescription = damageDescription.replaceAll("floor(", "Math.floor(");
+    damageDescription = damageDescription.replaceAll("ceil(", "Math.ceil(");
     let totalAverageRollResult = eval(damageDescription);
     return totalAverageRollResult;
   }
