@@ -554,11 +554,6 @@ export class ActorUtils
       totalDamageForAttack = totalDamageForAttack * cantripMultiplier;
     }
 
-    if (totalDamageForAttack === 0)
-    {
-      return;
-    }
-
     let currentAttackResult = {};
     currentAttackResult["averagedamage"] = totalDamageForAttack;
     let isProficient = spellDataObject.prof.hasProficiency;
