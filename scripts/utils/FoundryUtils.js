@@ -33,11 +33,11 @@ export class FoundryUtils
     let variableValues;
     if (FoundryUtils.isFoundryVersion10())
     {
-      variableValues = SFLOCALCONSTS.SYSTEM_VARIABLES_V10[variableName];
+      variableValues = LOCALCONSTS.SYSTEM_VARIABLES_V10[variableName];
     }
     else
     {
-      variableValues = SFLOCALCONSTS.SYSTEM_VARIABLES[variableName];
+      variableValues = LOCALCONSTS.SYSTEM_VARIABLES[variableName];
     }
 
     if (!variableValues)
