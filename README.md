@@ -20,10 +20,15 @@
 
 ![](images/2022-05-04-08-59-57.png)
 
+## Supported Features
+
+1. Multi-attack/extra attack for non-player character creatures & players with classes
+2. Calculating saving throw percentage chance at failure
+3. Half-damage on save
+4. Damage immunities, resistances and vulnerabilities 
+
 ## Current Limitations and planned work: 
 
-1. Calculating saving throws
-1. Applying resistances
 1. Legendary actions
 1. Lair actions
 1. Player class features: Great weapon master, sharpshooter, etc. 
