@@ -3,6 +3,7 @@ import { PCActor5e } from "./dnd5e/PCActor5e.js";
 import { FoundryUtils } from "./utils/FoundryUtils.js";
 import { GeneralUtils } from "./utils/GeneralUtils.js";
 import { ActorUtils } from "./utils/ActorUtils.js";
+import { LOCALCONSTS } from "./utils/Consts.js";
 
 export class CombatEstimateDialog extends FormApplication
 {
