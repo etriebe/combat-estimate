@@ -134,9 +134,10 @@ export class CombatEstimateDialog extends FormApplication
 		for (let i = 0; i < actorObject.combatdata.length; i++)
 		{
 			let currentAttack = actorObject.combatdata[i];
-			let getChanceToHit = this.getAttackChanceToHit(currentAttack, enemyCombatants);
+			let chanceToHit = this.getAttackChanceToHit(currentAttack, enemyCombatants);
 			let halfDamageOnSave = this.getAttackHalfDamageOnSave(currentAttack);
-			let expectedDamage = (currentAttack.averagedamage * currentAttack.numberofattacks * getChanceToHit);
+			let averageDamageWithResistance = this.getDamageWithResistanceApplied(currentAttack, enemyCombatants, chanceToHit);
+			let expectedDamage = (currentAttack.averagedamage * currentAttack.numberofattacks * chanceToHit);
 			if (halfDamageOnSave)
 			{
 				expectedDamage = expectedDamage * 1.5;
@@ -155,7 +156,7 @@ export class CombatEstimateDialog extends FormApplication
 			combatSummaryHTML += `<span class="encounter-numberofattacks"> x ${currentAttack.numberofattacks}</span>`;
 			combatSummaryHTML += `<span class="encounter-averagedamage">AvDmg: ${currentAttack.averagedamage * currentAttack.numberofattacks}</span>`;
 			// combatSummaryHTML += `<span class="encounter-numberofattacks"># of Attacks: ${currentAttack.numberofattacks}</span>`;
-			combatSummaryHTML += `<span class="encounter-percentchance">% Hit: ${(getChanceToHit * 100).toFixed(0)}%</span>`;
+			combatSummaryHTML += `<span class="encounter-percentchance">% Hit: ${(chanceToHit * 100).toFixed(0)}%</span>`;
 			combatSummaryHTML += `<span class="encounter-percentchance">ExDmg: ${expectedDamage.toFixed(1)}</span>`;
 			combatSummaryHTML += `</div></li>`;
 			attackNumber++;
@@ -176,6 +177,28 @@ export class CombatEstimateDialog extends FormApplication
 		combatSummaryHTML += `<span class="encounter-enemyhp">Enemy HP: ${totalEnemyHP}</span>`;
 		combatSummaryHTML += `<span class="encounter-roundstodown">Rounds to down: ${expectedRoundsToFinish}</span>`;
 		return combatSummaryHTML;
+	}
+
+	getDamageWithResistanceApplied(currentAttack, enemyCombatants, chanceToHit)
+	{
+		let attackBonus = currentAttack.attackbonustohit;
+		let averageDamage = [];
+		let attackDamageTotal = 0;
+		for (let i = 0; i < enemyCombatants.length; i++)
+		{
+			let currentEnemy = enemyCombatants[i];
+			let currentAttackDataObject = FoundryUtils.getDataObjectFromObject(currentAttack.attackobject);
+			for (let j = 0; j < currentAttackDataObject.parts.length; j++)
+			{
+
+			}
+			let enemyArmorClass = ActorUtils.getActorArmorClass(currentEnemy.actor);
+			let chanceToHit = totalAvailableRollsToHit / 20.0;
+			attackChanceTotal += chanceToHit;
+			attackChances.push(chanceToHit);
+		}
+		let averageChanceToHit = attackChanceTotal / attackChances.length;
+		return averageChanceToHit;
 	}
 
 	getAttackChanceToHit(currentAttack, enemyCombatants)
@@ -220,7 +243,7 @@ export class CombatEstimateDialog extends FormApplication
 
 	getAttackHalfDamageOnSave(currentAttack)
 	{
-		let attackObject = currentAttack.attackobject ?? currentAttack.specialobject;
+		let attackObject = currentAttack.attackobject;
 		let attackObjectDataObject = FoundryUtils.getDataObjectFromObject(attackObject);
 		let description = attackObjectDataObject.description.value;
 		if (description.match(/\bhalf\b/gm))

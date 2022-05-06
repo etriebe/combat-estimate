@@ -373,7 +373,7 @@ export class ActorUtils
       currentAttackResult["numberofattacks"] = 1;
       currentAttackResult["hasareaofeffect"] = false;
       currentAttackResult["attackdescription"] = sneakAttack.name;
-      currentAttackResult["specialobject"] = sneakAttack;
+      currentAttackResult["attackobject"] = sneakAttack;
       specialFeatureList.push(currentAttackResult);
     }
     return specialFeatureList;
@@ -495,7 +495,12 @@ export class ActorUtils
     return modifier;
   }
 
-  static getInfoForSpellObject(spellObject, actorObject)
+  static getAverageDamageForAttack(attackObject, enemyTraitsObject)
+  {
+
+  }
+
+  static getInfoForSpellObject(spellObject, actorObject, enemyTargetObject)
   {
     if (spellObject.hasDamage === false)
     {
@@ -529,6 +534,37 @@ export class ActorUtils
       }
 
       let totalAverageRollResult = ActorUtils.getAverageDamageFromDescription(damageDescription, abilityModValue);
+
+      if (enemyTargetObject)
+      {
+        let enemyTraitsObject = FoundryUtils.getDataObjectFromObject(enemyTargetObject).traits;
+
+        let immunityApplied = false;
+        let resistanceApplied = false;
+        let vulnerabilityApplied = false;
+
+        let isPhysicalDamage = ["piercing", "slashing", "bludgeoning"].find(d => d === damageType.toLowerCase());
+        let isMagical = attackDataObject.properties.mgc;
+        let isSilvered = attackDataObject.properties.sil;
+
+        // di is damage immunity
+        if (enemyTraitsObject.di.value.find(v => v === damageType))
+        {
+          totalAverageRollResult = 0;
+        }
+
+        // dr is damage resistance
+        if (enemyTraitsObject.dr.value.find(v => v === damageType))
+        {
+          totalAverageRollResult = totalAverageRollResult * 0.5;
+        }
+
+        // dv is damage resistance
+        if (enemyTraitsObject.dv.value.find(v => v === damageType))
+        {
+          totalAverageRollResult = totalAverageRollResult * 2;
+        }
+      }
 
       totalDamageForAttack += totalAverageRollResult;
     }
