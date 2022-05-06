@@ -206,7 +206,7 @@ export class CombatEstimateDialog extends FormApplication
 			{
 				let currentEnemy = enemyCombatants[i];
 				let enemySavingThrowBonus = ActorUtils.getActorSavingThrowModifier(currentEnemy.actor, savingThrowType);
-				let totalAvailableRollsToHit = 20 - ((savingThrowDC - 1) + enemySavingThrowBonus);
+				let totalAvailableRollsToHit = savingThrowDC - 1 - enemySavingThrowBonus;
 				let chanceToHit = totalAvailableRollsToHit / 20.0;
 				attackChanceTotal += chanceToHit;
 				attackChances.push(chanceToHit);
