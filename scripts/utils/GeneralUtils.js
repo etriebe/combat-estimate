@@ -60,4 +60,10 @@ export class GeneralUtils
     }
     return originalArray;
   }
+
+  static getArrayAverage(arrayToAverage)
+  {
+    let average = arrayToAverage.reduce((a, b) => a + b) / arrayToAverage.length;
+    return average;
+  }
 }

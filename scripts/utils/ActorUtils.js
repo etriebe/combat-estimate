@@ -374,6 +374,8 @@ export class ActorUtils
       currentAttackResult["hasareaofeffect"] = false;
       currentAttackResult["attackdescription"] = sneakAttack.name;
       currentAttackResult["attackobject"] = sneakAttack;
+      currentAttackResult["isspell"] = false;
+      currentAttackResult["isspecial"] = true;
       specialFeatureList.push(currentAttackResult);
     }
     return specialFeatureList;
@@ -495,11 +497,6 @@ export class ActorUtils
     return modifier;
   }
 
-  static getAverageDamageForAttack(attackObject, enemyTraitsObject)
-  {
-
-  }
-
   static getInfoForSpellObject(spellObject, actorObject, enemyTargetObject)
   {
     if (spellObject.hasDamage === false)
@@ -537,33 +534,14 @@ export class ActorUtils
 
       if (enemyTargetObject)
       {
-        let enemyTraitsObject = FoundryUtils.getDataObjectFromObject(enemyTargetObject).traits;
-
-        let immunityApplied = false;
-        let resistanceApplied = false;
-        let vulnerabilityApplied = false;
-
-        let isPhysicalDamage = ["piercing", "slashing", "bludgeoning"].find(d => d === damageType.toLowerCase());
-        let isMagical = attackDataObject.properties.mgc;
-        let isSilvered = attackDataObject.properties.sil;
-
-        // di is damage immunity
-        if (enemyTraitsObject.di.value.find(v => v === damageType))
-        {
-          totalAverageRollResult = 0;
-        }
-
-        // dr is damage resistance
-        if (enemyTraitsObject.dr.value.find(v => v === damageType))
-        {
-          totalAverageRollResult = totalAverageRollResult * 0.5;
-        }
-
-        // dv is damage resistance
-        if (enemyTraitsObject.dv.value.find(v => v === damageType))
-        {
-          totalAverageRollResult = totalAverageRollResult * 2;
-        }
+        let isSpell = true;
+        totalAverageRollResult = ActorUtils.getDamageWithResistance(
+          enemyTargetObject,
+          spellObject,
+          damageType,
+          damageDescription,
+          totalAverageRollResult,
+          isSpell);
       }
 
       totalDamageForAttack += totalAverageRollResult;
@@ -605,12 +583,109 @@ export class ActorUtils
     currentAttackResult["hasareaofeffect"] = spellObject.hasAreaTarget;
     currentAttackResult["attackdescription"] = spellObject.name;
     currentAttackResult["attackobject"] = spellObject;
+    currentAttackResult["isspell"] = true;
 
     if (isNaN(attackBonus))
     {
       return;
     }
     return currentAttackResult;
+  }
+
+  static getDamageWithResistance(enemyTargetObject, attackObject, damageType, damageDescription, totalAverageRollResult, isSpell)
+  {
+    let attackDataObject = FoundryUtils.getDataObjectFromObject(attackObject);
+    let enemyTraitsObject = FoundryUtils.getDataObjectFromObject(enemyTargetObject.actor).traits;
+
+    let immunityApplied = false;
+    let resistanceApplied = false;
+    let vulnerabilityApplied = false;
+
+    let isPhysicalDamage = ["piercing", "slashing", "bludgeoning"].find(d => d === damageType.toLowerCase());
+    let isMagical = attackDataObject.properties?.mgc ||
+      isSpell ||
+      ActorUtils.getIsMagicalDamage(damageType) ||
+      ActorUtils.getIsMagicalDamage(damageDescription); // Sometimes the damage description has types in them if there are multiple damage types
+
+    let isSilvered = attackDataObject.properties?.sil;
+
+    // di is damage immunity
+    if (enemyTraitsObject.di.value.find(v => v === damageType))
+    {
+      totalAverageRollResult = 0;
+      immunityApplied = true;
+    }
+
+    if (enemyTraitsObject.di.custom.match(/(nonmagical|non\-magical)/i) && isPhysicalDamage && !isMagical && !immunityApplied)
+    {
+      totalAverageRollResult = 0;
+      immunityApplied = true;
+    }
+
+    if (enemyTraitsObject.di.value.find(v => v === "physical") && isPhysicalDamage && !isMagical && !immunityApplied)
+    {
+      totalAverageRollResult = 0;
+      immunityApplied = true;
+    }
+
+    // Some enemites have resistance to magical weapons too (e.g. Demilich)
+    if (enemyTraitsObject.di.custom.match(/\bmagic\b/i) && isPhysicalDamage && isMagical && !immunityApplied)
+    {
+      totalAverageRollResult = 0;
+      immunityApplied = true;
+    }
+
+    // dr is damage resistance
+    if (enemyTraitsObject.dr.value.find(v => v === damageType))
+    {
+      totalAverageRollResult = totalAverageRollResult * 0.5;
+      resistanceApplied = true;
+    }
+
+    if (enemyTraitsObject.dr.custom.match(/(nonmagical|non\-magical)/i) && isPhysicalDamage && !isMagical && !resistanceApplied)
+    {
+      totalAverageRollResult = totalAverageRollResult * 0.5;
+      resistanceApplied = true;
+    }
+
+    // Some enemites have resistance to magical weapons too (e.g. Demilich)
+    if (enemyTraitsObject.dr.custom.match(/\bmagic\b/i) && isPhysicalDamage && isMagical && !resistanceApplied)
+    {
+      totalAverageRollResult = totalAverageRollResult * 0.5;
+      resistanceApplied = true;
+    }
+
+    if (enemyTraitsObject.dr.value.find(v => v === "physical") && isPhysicalDamage && !isMagical && !resistanceApplied)
+    {
+      totalAverageRollResult = totalAverageRollResult * 0.5;
+      resistanceApplied = true;
+    }
+
+    if (enemyTraitsObject.dr.custom.match(/silver/i) && isPhysicalDamage && !isSilvered && !resistanceApplied)
+    {
+      totalAverageRollResult = totalAverageRollResult * 0.5;
+      resistanceApplied = true;
+    }
+
+    // dv is damage resistance
+    if (enemyTraitsObject.dv.value.find(v => v === damageType))
+    {
+      totalAverageRollResult = totalAverageRollResult * 2;
+    }
+    return totalAverageRollResult;
+  }
+
+  static getIsMagicalDamage(damageType)
+  {
+    let magicalDamageRegex = /(acid|cold|fire|force|lightning|necrotic|poison|psychic|radiant|thunder)/i;
+    if (damageType.match(magicalDamageRegex))
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
   }
 
   static guessActorMultiAttack(attackList, multiAttackDescription, actorObject)
@@ -626,7 +701,7 @@ export class ActorUtils
     return ActorUtils.getInfoForAttackObject(bestAttackObject, actualNumber, actorObject);
   }
 
-  static getInfoForAttackObject(attackObject, numberOfAttacks, actorObject)
+  static getInfoForAttackObject(attackObject, numberOfAttacks, actorObject, enemyTargetObject)
   {
     let abilityModType = attackObject.abilityMod;
     let attackDataObject = FoundryUtils.getDataObjectFromObject(attackObject);
@@ -673,6 +748,19 @@ export class ActorUtils
           }
           continue;
         }
+
+        if (enemyTargetObject)
+        {
+          let isSpell = false;
+          totalAverageRollResult = ActorUtils.getDamageWithResistance(
+            enemyTargetObject,
+            attackObject,
+            damageType,
+            damageDescription,
+            totalAverageRollResult,
+            isSpell);
+        }
+
         totalDamageForAttack += totalAverageRollResult;
       }
     }
@@ -702,6 +790,7 @@ export class ActorUtils
     currentAttackResult["hasareaofeffect"] = attackObject.hasAreaTarget;
     currentAttackResult["attackdescription"] = attackObject.name;
     currentAttackResult["attackobject"] = attackObject;
+    currentAttackResult["isspell"] = false;
 
     if (isNaN(attackBonus) || isNaN(numberOfAttacks) || isNaN(totalDamageForAttack))
     {
