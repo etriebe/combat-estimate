@@ -656,10 +656,12 @@ export class ActorUtils
       currentAttackResult["savingthrowdc"] = ActorUtils.getSaveDC(attackObject);
       currentAttackResult["savingthrowtype"] = ActorUtils.getSavingThrowType(attackObject);
     }
-    else
+
+    if (attackObject.hasAttack)
     {
       currentAttackResult["attackbonustohit"] = attackBonus;
     }
+
     currentAttackResult["numberofattacks"] = numberOfAttacks;
     currentAttackResult["hasareaofeffect"] = attackObject.hasAreaTarget;
     currentAttackResult["attackdescription"] = attackObject.name;
