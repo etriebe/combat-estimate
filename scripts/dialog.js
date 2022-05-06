@@ -39,6 +39,8 @@ export class CombatEstimateDialog extends FormApplication
 
 	populateCombatants()
 	{
+		this.friendlyExpectedDamages = [];
+		this.hostileExpectedDamages = [];
 		const html = this.element;
 		let $friendsList = html.find('#friendly-combatants ul').first();
 		let $hostilesList = html.find('#hostile-combatants ul').first();
