@@ -1,4 +1,3 @@
-import { EncounterUtils5e } from "./dnd5e/EncounterUtils5e.js";
 import { NPCActor5e } from "./dnd5e/NPCActor5e.js";
 import { PCActor5e } from "./dnd5e/PCActor5e.js";
 import { FoundryUtils } from "./utils/FoundryUtils.js";
