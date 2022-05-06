@@ -1,3 +1,5 @@
+import { LOCALCONSTS } from "./Consts.js";
+
 export class FoundryUtils
 {
 
