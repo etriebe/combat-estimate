@@ -122,6 +122,9 @@ export class ActorUtils
     {
       let attackList = actor.items.filter(i => (i.type.toLowerCase() === "weapon" || i.type.toLowerCase() === "feat") &&
         (!activationType || i.data.data.activation.type === activationType) &&
+        (i.hasAttack || i.hasSave) &&
+        // i.hasLimitedUses &&
+        i.hasDamage &&
         i.name.toLowerCase() != "multiattack" && i.name.toLowerCase() != "extra attack");
       let multiAttack = actor.items.filter(i => i.name.toLowerCase() === "multiattack" || i.name.toLowerCase() === "extra attack");
       if (multiAttack && multiAttack.length > 0)
