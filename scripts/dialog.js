@@ -159,7 +159,7 @@ export class CombatEstimateDialog extends FormApplication
 			let expectedDamage = (averageDamage * currentAttack.numberofattacks * chanceToHit);
 			if (halfDamageOnSave)
 			{
-				expectedDamage = expectedDamage * 1.5;
+				expectedDamage = expectedDamage + (averageDamage * currentAttack.numberofattacks * (1 - chanceToHit)) / 2;
 			}
 
 			// assume 2 targets get hit with any area of effect if there are more than one enemy combatant
