@@ -209,7 +209,7 @@ export class CombatEstimateDialog extends FormApplication
 			{
 				let currentEnemy = enemyCombatants[i];
 				let enemyArmorClass = ActorUtils.getActorArmorClass(currentEnemy.actor);
-				let totalAvailableRollsToHit = 20 - (enemyArmorClass - 1) + attackBonus;
+				let totalAvailableRollsToHit = Math.min(20 - (enemyArmorClass - 1) + attackBonus, 19); // a natural 1 always misses so there should only be 19 possible rolls that could hit
 				let chanceToHit = totalAvailableRollsToHit / 20.0;
 				attackChanceTotal += chanceToHit;
 				attackChances.push(chanceToHit);

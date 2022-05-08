@@ -126,13 +126,19 @@ export class ActorUtils
         // i.hasLimitedUses &&
         i.hasDamage &&
         i.name.toLowerCase() != "multiattack" && i.name.toLowerCase() != "extra attack");
-      let multiAttack = actor.items.filter(i => i.name.toLowerCase() === "multiattack" || i.name.toLowerCase() === "extra attack");
-      if (multiAttack && multiAttack.length > 0)
+
+      if (attackList.length === 0)
+      {
+        return allAttackResultObjects;
+      }
+
+      let multiAttack = ActorUtils.getBestMultiExtraAttack(actor);
+      if (multiAttack)
       {
         // Description types supported:
         // <p>The imperial ghoul makes one bite attack and one claws attack.</p>
         // <p>the dragon can use its frightful presence. it then makes three attacks: one with its bite and two with its claws.</p>'
-        let multiAttackDescription = ActorUtils.getDescriptionFromItemObject(multiAttack[0]).toLowerCase();
+        let multiAttackDescription = ActorUtils.getDescriptionFromItemObject(multiAttack).toLowerCase();
         multiAttackDescription = multiAttackDescription.replaceAll("instead of once", "");
         let parsedAttackList = [];
         for (let i = 0; i < attackList.length; i++)
@@ -251,9 +257,50 @@ export class ActorUtils
     }
     catch (error)
     {
-      console.warn(`Error parsing attack information for ${actor.name}, ${actor.id}. Error: ${error}`);
+      console.warn(`Error parsing attack information for ${actor.name}, ${actor.id}.`);
+      console.warn(error.stack);
     }
     return allAttackResultObjects;
+  }
+
+  static getBestMultiExtraAttack(actor)
+  {
+    let multiAttacks = actor.items.filter(i => i.name.toLowerCase() === "multiattack" || i.name.toLowerCase() === "extra attack");
+
+    if (multiAttacks.length === 0)
+    {
+      return null;
+    }
+
+    // This should be in the case of NPCs. Only PCs might have multiple extra attacks.
+    if (multiAttacks.length === 1)
+    {
+      return multiAttacks[0];
+    }
+
+    let bestMultiAttack = null;
+    let mostNumberOfAttacks = 0;
+    for (let i = 0; i < multiAttacks.length; i++)
+    {
+      let currentMultiAttack = multiAttacks[i];
+
+      let multiAttackDescription = ActorUtils.getDescriptionFromItemObject(currentMultiAttack).toLowerCase();
+      multiAttackDescription = multiAttackDescription.replaceAll("instead of once", "");
+
+      let extraAttackMatch = multiAttackDescription.match(ActorUtils.numberRegex);
+      if (extraAttackMatch)
+      {
+        let numberOfAttacksMatch = extraAttackMatch[0];
+        let actualNumberOfAttacks = GeneralUtils.getIntegerFromWordNumber(numberOfAttacksMatch);
+        if (actualNumberOfAttacks > mostNumberOfAttacks)
+        {
+          bestMultiAttack = currentMultiAttack;
+          mostNumberOfAttacks = actualNumberOfAttacks;
+        }
+      }
+    }
+
+    return bestMultiAttack;
   }
 
   static getBestSingleAttack(attackList, actorObject)
@@ -325,7 +372,7 @@ export class ActorUtils
         catch (error)
         {
           console.warn(`Unable to parse spell attack ${spellList[i].name}`);
-          console.warn(error);
+          console.warn(error.stack);
         }
       }
       if (bestSpellObject)
@@ -336,7 +383,7 @@ export class ActorUtils
     catch (error)
     {
       console.warn(`Failed to get spell data per round for ${actorObject.actorname}, ${actorObject.actorid}`);
-      console.warn(error);
+      console.warn(error.stack);
     }
 
     return allSpellResultObjects;
@@ -403,7 +450,7 @@ export class ActorUtils
       catch (error)
       {
         console.warn(`Unable to evaluate macros in rollDescription ${rollDescription}`);
-        console.warn(error);
+        console.warn(error.stack);
       }
     }
 
@@ -455,7 +502,7 @@ export class ActorUtils
       catch (error)
       {
         console.warn(`Failed to add combat summary for creature ${actorObject.actorname}`);
-        console.warn(error);
+        console.warn(error.stack);
       }
     }
 
@@ -475,7 +522,7 @@ export class ActorUtils
       catch (error)
       {
         console.warn(`Failed to calculate spell summary for creature ${actorObject.actorname}`);
-        console.warn(error);
+        console.warn(error.stack);
       }
     }
 
