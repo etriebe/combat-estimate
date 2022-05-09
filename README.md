@@ -26,10 +26,11 @@
 2. Calculating saving throw percentage chance at failure
 3. Half-damage on save
 4. Damage immunities, resistances and vulnerabilities 
+5. Legendary actions
 
 ## Current Limitations and planned work: 
 
-1. Legendary actions
 1. Lair actions
-1. Player class features: Great weapon master, sharpshooter, etc. 
-1. Taking into account active spell slots
+2. Player class features: Great weapon master, sharpshooter, etc. 
+3. Taking into account active spell slots
+4. Having a "conserve resources" / "go all out" mode. 
