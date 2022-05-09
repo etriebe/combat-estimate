@@ -20,6 +20,12 @@
 
 ![](images/2022-05-04-08-59-57.png)
 
+## Legendary Actions
+
+V1 support for calculating legendary actions is out! This will even determine for legendary actions like a Dragon's Wing Attack, which isn't classified as an area-of-effect attack by Foundry, determine how many enemies you're likely to hit just based on the size of the effect. 
+
+![](images/2022-05-09-12-59-08.png)
+
 ## Supported Features
 
 1. Multi-attack/extra attack for non-player character creatures & players with classes
