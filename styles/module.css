@@ -80,6 +80,10 @@
 	color: var(--palette-app-background-dark-contrast-text, #f0f0e0);
 }
 
+#CombatEstimateDialog a.entity-link i.fas {
+	color: inherit;
+}
+
 #CombatEstimateDialog .legend-item {
 	display: list-item;
 }

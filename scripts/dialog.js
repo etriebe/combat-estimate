@@ -89,7 +89,8 @@ export class CombatEstimateDialog extends FormApplication
 		for (let actorObject of this.friendlyCombatants)
 		{
 			let combatSummaryHTML = this.getActorCombatSummary(actorObject, this.hostileCombatants, this.friendlyExpectedDamages);
-			let actorLink = TextEditor.enrichHTML(actorObject.actor.link);
+			let actorLink = FoundryUtils.getActorLink(actorObject.actor);
+			// let actorLink = TextEditor.enrichHTML(actorObject.actor.link);
 			$friendsList.append(`
 				<li class="combatant-friendly">
 					<div class="player-details">
@@ -105,7 +106,7 @@ export class CombatEstimateDialog extends FormApplication
 		for (let actorObject of this.hostileCombatants)
 		{
 			let combatSummaryHTML = this.getActorCombatSummary(actorObject, this.friendlyCombatants, this.hostileExpectedDamages);
-			let actorLink = TextEditor.enrichHTML(actorObject.actor.link);
+			let actorLink = FoundryUtils.getActorLink(actorObject.actor);
 			$hostilesList.append(`
 				<li class="combatant-hostile">
 					<div class="player-details">
@@ -170,11 +171,10 @@ export class CombatEstimateDialog extends FormApplication
 
 			totalExpectedDamage += expectedDamage;
 			combatSummaryHTML += `<li class="single-attack"><div>`;
-			// combatSummaryHTML += `<span class="encounter-attacknumber">#${attackNumber}</span>`;
+			// combatSummaryHTML += FoundryUtils.getItemLink(currentAttack.attackobject);
 			combatSummaryHTML += `<span class="encounter-attackdescription">${currentAttack.attackdescription}</span>`;
 			combatSummaryHTML += `<span class="encounter-numberofattacks"> x ${currentAttack.numberofattacks}</span>`;
 			combatSummaryHTML += `<span class="encounter-averagedamage">AvDmg: ${currentAttack.averagedamage * currentAttack.numberofattacks}</span>`;
-			// combatSummaryHTML += `<span class="encounter-numberofattacks"># of Attacks: ${currentAttack.numberofattacks}</span>`;
 			combatSummaryHTML += `<span class="encounter-percentchance">% Hit: ${(chanceToHit * 100).toFixed(0)}%</span>`;
 			combatSummaryHTML += `<span class="encounter-percentchance">ExDmg: ${expectedDamage.toFixed(1)}</span>`;
 			combatSummaryHTML += `</div></li>`;

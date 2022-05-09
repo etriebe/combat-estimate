@@ -158,4 +158,19 @@ export class FoundryUtils
 
     return totalDiceResult;
   }
-}
+
+  static getActorLink(actor)
+  {
+    let actorID = actor.id;
+    let actorName = actor.name;
+    return `<a class="entity-link content-link" draggable="true" data-type="Actor" data-entity="Actor" data-id="${actorID}"><i class="fas fa-user"></i> ${actorName}</a>`;
+  }
+
+  static getItemLink(item)
+  {
+    // '<a class="entity-link content-link broken" draggable="true" data-type="Item" data-entity="Item" data-id="null">Monk</a>'
+    let itemID = item.id;
+    let itemName = item.name;
+    return `<a class="entity-link content-link" draggable="true" data-type="Item" data-entity="Item" data-id="${itemID}">${itemName}</a>`;
+  }
+};
