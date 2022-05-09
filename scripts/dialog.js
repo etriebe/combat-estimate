@@ -169,6 +169,12 @@ export class CombatEstimateDialog extends FormApplication
 				expectedDamage = expectedDamage * 2;
 			}
 
+			if (currentAttack.areaofeffecttargets)
+			{
+				let actualTargetCount = Math.min(enemyCombatants.length, currentAttack.areaofeffecttargets);
+				expectedDamage = expectedDamage * actualTargetCount;
+			}
+
 			totalExpectedDamage += expectedDamage;
 			combatSummaryHTML += `<li class="single-attack"><div>`;
 			// combatSummaryHTML += FoundryUtils.getItemLink(currentAttack.attackobject);

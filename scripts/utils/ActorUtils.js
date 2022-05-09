@@ -284,79 +284,69 @@ export class ActorUtils
     let legedaryActionsDescription = legendaryActionsDataObject.description.value;
     legedaryActionsDescription = legedaryActionsDescription.replaceAll("<p>", "").replaceAll("</p>", "");
     legedaryActionsDescription = legedaryActionsDescription.replaceAll("<p>", "").replaceAll("</p>", "");
-    let legendaryActionsToChooseFrom = actor.items.filter(i =>
-      (i.type != "spell" ||
-        (i.type === "spell" && i.data.data.level === 0))
-      && i.name.toLowerCase() != "legendary actions");
+    let legendaryActionsToChooseFrom = actor.items.filter(i => FoundryUtils.getDataObjectFromObject(i).activation.type === "legendary");
 
-    let currentlySeenLegendaryActions = [];
     let legendaryActionList = [];
     for (let i = 0; i < legendaryActionsToChooseFrom.length; i++)
     {
-      let currentPossibleAction = legendaryActionsToChooseFrom[i];
-      if (currentlySeenLegendaryActions.find(a => a === currentPossibleAction.name))
-      {
-        continue;
-      }
-      currentlySeenLegendaryActions.push(currentPossibleAction.name);
-      let legedaryActionCost = 1;
-      let currentActionRegex = new RegExp(`${currentPossibleAction.name}( .costs (?<legendaryActionCost>.) actions.)?`, 'i');
+      let currentAction = legendaryActionsToChooseFrom[i];
+      let currentActionDataObject = FoundryUtils.getDataObjectFromObject(currentAction);
+      let legedaryActionCost = currentActionDataObject.activation.cost;
       let isSpell = false;
 
-      if (currentPossibleAction.type === "spell")
+      let currentAttackObject = null;
+      if (currentAction.name.match(/cantrip/i))
       {
         isSpell = true;
-        currentActionRegex = new RegExp(`cantrip`, 'i');
-      }
+        let activationType = null;
+        let spellLevelLimit = 0; // 0 is cantrip
+        let bestSpellResult = ActorUtils.getSpellDataPerRound(actorObject, activationType, spellLevelLimit);
+        if (bestSpellResult.length === 0)
+        {
+          console.warn(`Unable to find a good cantrip legendary action for ${actorObject.actorname}.`);
+        }
 
-      let legedaryActionsDescriptionMatch = legedaryActionsDescription.match(currentActionRegex);
-      if (legedaryActionsDescriptionMatch || legedaryActionsDescription.includes(currentPossibleAction.name))
+        currentAttackObject = bestSpellResult[0];
+        currentAction = currentAttackObject.attackobject;
+      }
+      else
       {
-        if (legedaryActionsDescriptionMatch)
-        {
-          if (legedaryActionsDescriptionMatch.groups.legendaryActionCost)
-          {
-            legedaryActionCost = legedaryActionsDescriptionMatch.groups.legendaryActionCost;
-          }
-        }
-        else
-        {
-          let nameRegex = currentPossibleAction.name.match(/costs (?<legendaryActionCost>.) actions/i);
-          if (nameRegex)
-          {
-            legedaryActionCost = nameRegex.groups.legendaryActionCost;
-          }
-        }
-
-        let currentAttackObject = isSpell ?
-          ActorUtils.getInfoForSpellObject(currentPossibleAction, actorObject) :
-          ActorUtils.getInfoForAttackObject(currentPossibleAction, 1, actorObject);
-
-        let totalAttackDamage = currentAttackObject.averagedamage;
-        if (currentPossibleAction.hasAreaTarget)
-        {
-          totalAttackDamage = totalAttackDamage * 2;
-        }
-
-        let currentLegendaryActionResult = {};
-        currentLegendaryActionResult["averagedamage"] = currentAttackObject.averagedamage;
-        currentLegendaryActionResult["attackbonustohit"] = currentAttackObject.attackbonustohit;
-        currentLegendaryActionResult["attackdescription"] = currentPossibleAction.name;
-        currentLegendaryActionResult["numberofattacks"] = 1;
-        currentLegendaryActionResult["hasareaofeffect"] = currentPossibleAction.hasAreaTarget;
-        currentLegendaryActionResult["attackobject"] = currentPossibleAction;
-        currentLegendaryActionResult["isspell"] = currentPossibleAction.type === "spell";
-        currentLegendaryActionResult["legendaryactioncost"] = legedaryActionCost;
-        currentLegendaryActionResult["damagepercost"] = totalAttackDamage / legedaryActionCost;
-
-        if (currentPossibleAction.hasSave)
-        {
-          currentLegendaryActionResult["savingthrowdc"] = ActorUtils.getSaveDC(currentPossibleAction);
-          currentLegendaryActionResult["savingthrowtype"] = ActorUtils.getSavingThrowType(currentPossibleAction);
-        }
-
-        legendaryActionList.push(currentLegendaryActionResult);
+        currentAttackObject = ActorUtils.getInfoForAttackObject(currentAction, 1, actorObject);
       }
+
+      let pseudoAreaTarget = ActorUtils.getIfAttackAffectsMultipleCreatures(currentAction);
+      let pseudoAreaTargetCount = null;
+
+      let totalAttackDamage = currentAttackObject.averagedamage;
+      if (currentAction.hasAreaTarget || pseudoAreaTarget)
+      {
+        pseudoAreaTargetCount = ActorUtils.getPseudoAreaOfEffectTargetCount(currentAction);
+        totalAttackDamage = totalAttackDamage * pseudoAreaTargetCount;
+      }
+
+      let currentLegendaryActionResult = {};
+      currentLegendaryActionResult["averagedamage"] = currentAttackObject.averagedamage;
+      currentLegendaryActionResult["attackbonustohit"] = currentAttackObject.attackbonustohit;
+      currentLegendaryActionResult["attackdescription"] = currentAction.name;
+      currentLegendaryActionResult["numberofattacks"] = 1;
+      currentLegendaryActionResult["hasareaofeffect"] = currentAction.hasAreaTarget;
+      currentLegendaryActionResult["attackobject"] = currentAction;
+      currentLegendaryActionResult["isspell"] = currentAction.type === "spell";
+      currentLegendaryActionResult["legendaryactioncost"] = legedaryActionCost;
+      currentLegendaryActionResult["damagepercost"] = totalAttackDamage / legedaryActionCost;
+      if (pseudoAreaTargetCount)
+      {
+        currentLegendaryActionResult["areaofeffecttargets"] = pseudoAreaTargetCount;
+      }
+
+
+      if (currentAction.hasSave)
+      {
+        currentLegendaryActionResult["savingthrowdc"] = ActorUtils.getSaveDC(currentAction);
+        currentLegendaryActionResult["savingthrowtype"] = ActorUtils.getSavingThrowType(currentAction);
+      }
+
+      legendaryActionList.push(currentLegendaryActionResult);
     }
 
     let sortedLegendaryActionList = legendaryActionList.sort(function (a, b)
@@ -400,6 +390,48 @@ export class ActorUtils
     }
 
     return finalLegendaryActionResult;
+  }
+
+  static getIfAttackAffectsMultipleCreatures(attackObject)
+  {
+    let attackDataObject = FoundryUtils.getDataObjectFromObject(attackObject);
+    let description = attackDataObject.description.value.toLowerCase();
+    if (description.match(/\beach/i) && description.includes("within") && description.includes("feet"))
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+
+  static getPseudoAreaOfEffectTargetCount(attackObject)
+  {
+    let attackDataObject = FoundryUtils.getDataObjectFromObject(attackObject);
+    let description = attackDataObject.description.value.toLowerCase();
+    if (description.includes("each") && description.includes("within") && description.includes("feet"))
+    {
+      let feetCountMatch = description.match(/(?<distance>\d+) feet/i);
+      if (feetCountMatch)
+      {
+        let distance = feetCountMatch.groups.distance;
+        if (distance <= 10)
+        {
+          return 2;
+        }
+        else if (distance <= 20)
+        {
+          return 3;
+        }
+        else
+        {
+          return 4;
+        }
+      }
+    }
+
+    return null;
   }
 
   static getBestMultiExtraAttack(actor)
@@ -478,13 +510,18 @@ export class ActorUtils
     return totalDamage;
   }
 
-  static getSpellDataPerRound(actorObject, activationType)
+  static getSpellDataPerRound(actorObject, activationType, spellLevelLimit)
   {
     let allSpellResultObjects = [];
     let actor = actorObject.actor;
     try
     {
       let spellList = actor.items.filter(i => (i.type.toLowerCase() === "spell") && (!activationType || (i.data.data.activation.type === activationType)));
+      if (spellLevelLimit != null)
+      {
+        spellList = spellList.filter(s => FoundryUtils.getDataObjectFromObject(s).level <= spellLevelLimit);
+      }
+
       let bestSpellObject = null;
       let maxDamage = 0;
       for (let i = 0; i < spellList.length; i++)
