@@ -263,6 +263,145 @@ export class ActorUtils
     return allAttackResultObjects;
   }
 
+  static getLegendaryActions(actorObject)
+  {
+    let actor = actorObject.actor;
+    let actorDataObject = FoundryUtils.getDataObjectFromObject(actor);
+    if (!actorDataObject.resources.legact || actorDataObject.resources.legact.max === 0)
+    {
+      return null;
+    }
+
+    let legendaryActionsMax = actorDataObject.resources.legact.max;
+    let legendaryActionsItem = actor.items.find(i => i.name.toLowerCase() === "legendary actions");
+    /*
+    <p>The dragon can take 3 legendary actions, choosing from the options below. Only one legendary action option can be used at a time and only at the end of another creature's turn. The dragon regains spent legendary actions at the start of its turn.</p>
+    <p><strong>Detect.</strong> The dragon makes a Wisdom (Perception) check.</p>
+    <p><strong>Tail Attack.</strong> The dragon makes a tail attack.</p>
+    <p><strong>Wing Attack (Costs 2 Actions).</strong> The dragon beats its wings. Each creature within 10 feet of the dragon must succeed on a DC 22 Dexterity saving throw or take 15 (2d6 + 8) bludgeoning damage and be knocked prone. The dragon can then fly up to half its flying speed.</p>
+    */
+    let legendaryActionsDataObject = FoundryUtils.getDataObjectFromObject(legendaryActionsItem);
+    let legedaryActionsDescription = legendaryActionsDataObject.description.value;
+    legedaryActionsDescription = legedaryActionsDescription.replaceAll("<p>", "").replaceAll("</p>", "");
+    legedaryActionsDescription = legedaryActionsDescription.replaceAll("<p>", "").replaceAll("</p>", "");
+    let legendaryActionsToChooseFrom = actor.items.filter(i =>
+      (i.type != "spell" ||
+        (i.type === "spell" && i.data.data.level === 0))
+      && i.name.toLowerCase() != "legendary actions");
+
+    let currentlySeenLegendaryActions = [];
+    let legendaryActionList = [];
+    for (let i = 0; i < legendaryActionsToChooseFrom.length; i++)
+    {
+      let currentPossibleAction = legendaryActionsToChooseFrom[i];
+      if (currentlySeenLegendaryActions.find(a => a === currentPossibleAction.name))
+      {
+        continue;
+      }
+      currentlySeenLegendaryActions.push(currentPossibleAction.name);
+      let legedaryActionCost = 1;
+      let currentActionRegex = new RegExp(`${currentPossibleAction.name}( .costs (?<legendaryActionCost>.) actions.)?`, 'i');
+      let isSpell = false;
+
+      if (currentPossibleAction.type === "spell")
+      {
+        isSpell = true;
+        currentActionRegex = new RegExp(`cantrip`, 'i');
+      }
+
+      let legedaryActionsDescriptionMatch = legedaryActionsDescription.match(currentActionRegex);
+      if (legedaryActionsDescriptionMatch || legedaryActionsDescription.includes(currentPossibleAction.name))
+      {
+        if (legedaryActionsDescriptionMatch)
+        {
+          if (legedaryActionsDescriptionMatch.groups.legendaryActionCost)
+          {
+            legedaryActionCost = legedaryActionsDescriptionMatch.groups.legendaryActionCost;
+          }
+        }
+        else
+        {
+          let nameRegex = currentPossibleAction.name.match(/costs (?<legendaryActionCost>.) actions/i);
+          if (nameRegex)
+          {
+            legedaryActionCost = nameRegex.groups.legendaryActionCost;
+          }
+        }
+
+        let currentAttackObject = isSpell ?
+          ActorUtils.getInfoForSpellObject(currentPossibleAction, actorObject) :
+          ActorUtils.getInfoForAttackObject(currentPossibleAction, 1, actorObject);
+
+        let totalAttackDamage = currentAttackObject.averagedamage;
+        if (currentPossibleAction.hasAreaTarget)
+        {
+          totalAttackDamage = totalAttackDamage * 2;
+        }
+
+        let currentLegendaryActionResult = {};
+        currentLegendaryActionResult["averagedamage"] = currentAttackObject.averagedamage;
+        currentLegendaryActionResult["attackbonustohit"] = currentAttackObject.attackbonustohit;
+        currentLegendaryActionResult["attackdescription"] = currentPossibleAction.name;
+        currentLegendaryActionResult["numberofattacks"] = 1;
+        currentLegendaryActionResult["hasareaofeffect"] = currentPossibleAction.hasAreaTarget;
+        currentLegendaryActionResult["attackobject"] = currentPossibleAction;
+        currentLegendaryActionResult["isspell"] = currentPossibleAction.type === "spell";
+        currentLegendaryActionResult["legendaryactioncost"] = legedaryActionCost;
+        currentLegendaryActionResult["damagepercost"] = totalAttackDamage / legedaryActionCost;
+
+        if (currentPossibleAction.hasSave)
+        {
+          currentLegendaryActionResult["savingthrowdc"] = ActorUtils.getSaveDC(currentPossibleAction);
+          currentLegendaryActionResult["savingthrowtype"] = ActorUtils.getSavingThrowType(currentPossibleAction);
+        }
+
+        legendaryActionList.push(currentLegendaryActionResult);
+      }
+    }
+
+    let sortedLegendaryActionList = legendaryActionList.sort(function (a, b)
+    {
+      return b.damagepercost - a.damagepercost;
+    });
+
+    let finalLegendaryActionResult = [];
+    let currentLegendaryActionCost = 0;
+
+    // Loop through up to 5 times in case there is only one legendary action which does damage
+    for (let j = 0; j < 5; j++)
+    {
+      if (currentLegendaryActionCost >= legendaryActionsMax)
+      {
+        break;
+      }
+
+      for (let i = 0; i < sortedLegendaryActionList.length; i++)
+      {
+        let currentAction = sortedLegendaryActionList[i];
+
+        if (currentLegendaryActionCost >= legendaryActionsMax)
+        {
+          break;
+        }
+
+        if (currentLegendaryActionCost + currentAction.legendaryactioncost > legendaryActionsMax)
+        {
+          continue;
+        }
+
+        if (currentAction.averagedamage === 0)
+        {
+          continue;
+        }
+
+        currentLegendaryActionCost += currentAction.legendaryactioncost;
+        finalLegendaryActionResult.push(currentAction);
+      }
+    }
+
+    return finalLegendaryActionResult;
+  }
+
   static getBestMultiExtraAttack(actor)
   {
     let multiAttacks = actor.items.filter(i => i.name.toLowerCase() === "multiattack" || i.name.toLowerCase() === "extra attack");
@@ -537,6 +676,7 @@ export class ActorUtils
 
     bestCombatRound = GeneralUtils.safeArrayAppend(bestCombatRound, actorObject.bonusattackdata);
     bestCombatRound = GeneralUtils.safeArrayAppend(bestCombatRound, actorObject.specialfeatures);
+    bestCombatRound = GeneralUtils.safeArrayAppend(bestCombatRound, actorObject.legendarydata);
 
     return bestCombatRound;
   }
