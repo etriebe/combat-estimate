@@ -20,16 +20,23 @@
 
 ![](images/2022-05-04-08-59-57.png)
 
+## Legendary Actions
+
+V1 support for calculating legendary actions is out! This will even determine for legendary actions like a Dragon's Wing Attack, which isn't classified as an area-of-effect attack by Foundry, determine how many enemies you're likely to hit just based on the size of the effect. 
+
+![](images/2022-05-09-12-59-08.png)
+
 ## Supported Features
 
 1. Multi-attack/extra attack for non-player character creatures & players with classes
 2. Calculating saving throw percentage chance at failure
 3. Half-damage on save
 4. Damage immunities, resistances and vulnerabilities 
+5. Legendary actions
 
 ## Current Limitations and planned work: 
 
-1. Legendary actions
 1. Lair actions
-1. Player class features: Great weapon master, sharpshooter, etc. 
-1. Taking into account active spell slots
+2. Player class features: Great weapon master, sharpshooter, etc. 
+3. Taking into account active spell slots
+4. Having a "conserve resources" / "go all out" mode. 

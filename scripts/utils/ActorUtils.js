@@ -263,6 +263,177 @@ export class ActorUtils
     return allAttackResultObjects;
   }
 
+  static getLegendaryActions(actorObject)
+  {
+    let actor = actorObject.actor;
+    let actorDataObject = FoundryUtils.getDataObjectFromObject(actor);
+    if (!actorDataObject.resources.legact || actorDataObject.resources.legact.max === 0)
+    {
+      return null;
+    }
+
+    let legendaryActionsMax = actorDataObject.resources.legact.max;
+    let legendaryActionsItem = actor.items.find(i => i.name.toLowerCase() === "legendary actions");
+    /*
+    <p>The dragon can take 3 legendary actions, choosing from the options below. Only one legendary action option can be used at a time and only at the end of another creature's turn. The dragon regains spent legendary actions at the start of its turn.</p>
+    <p><strong>Detect.</strong> The dragon makes a Wisdom (Perception) check.</p>
+    <p><strong>Tail Attack.</strong> The dragon makes a tail attack.</p>
+    <p><strong>Wing Attack (Costs 2 Actions).</strong> The dragon beats its wings. Each creature within 10 feet of the dragon must succeed on a DC 22 Dexterity saving throw or take 15 (2d6 + 8) bludgeoning damage and be knocked prone. The dragon can then fly up to half its flying speed.</p>
+    */
+    let legendaryActionsDataObject = FoundryUtils.getDataObjectFromObject(legendaryActionsItem);
+    let legedaryActionsDescription = legendaryActionsDataObject.description.value;
+    legedaryActionsDescription = legedaryActionsDescription.replaceAll("<p>", "").replaceAll("</p>", "");
+    legedaryActionsDescription = legedaryActionsDescription.replaceAll("<p>", "").replaceAll("</p>", "");
+    let legendaryActionsToChooseFrom = actor.items.filter(i => FoundryUtils.getDataObjectFromObject(i).activation.type === "legendary");
+
+    let legendaryActionList = [];
+    for (let i = 0; i < legendaryActionsToChooseFrom.length; i++)
+    {
+      let currentAction = legendaryActionsToChooseFrom[i];
+      let currentActionDataObject = FoundryUtils.getDataObjectFromObject(currentAction);
+      let legedaryActionCost = currentActionDataObject.activation.cost;
+      let isSpell = false;
+
+      let currentAttackObject = null;
+      if (currentAction.name.match(/cantrip/i))
+      {
+        isSpell = true;
+        let activationType = null;
+        let spellLevelLimit = 0; // 0 is cantrip
+        let bestSpellResult = ActorUtils.getSpellDataPerRound(actorObject, activationType, spellLevelLimit);
+        if (bestSpellResult.length === 0)
+        {
+          console.warn(`Unable to find a good cantrip legendary action for ${actorObject.actorname}.`);
+        }
+
+        currentAttackObject = bestSpellResult[0];
+        currentAction = currentAttackObject.attackobject;
+      }
+      else
+      {
+        currentAttackObject = ActorUtils.getInfoForAttackObject(currentAction, 1, actorObject);
+      }
+
+      let pseudoAreaTarget = ActorUtils.getIfAttackAffectsMultipleCreatures(currentAction);
+      let pseudoAreaTargetCount = null;
+
+      let totalAttackDamage = currentAttackObject.averagedamage;
+      if (currentAction.hasAreaTarget || pseudoAreaTarget)
+      {
+        pseudoAreaTargetCount = ActorUtils.getPseudoAreaOfEffectTargetCount(currentAction);
+        totalAttackDamage = totalAttackDamage * pseudoAreaTargetCount;
+      }
+
+      let currentLegendaryActionResult = {};
+      currentLegendaryActionResult["averagedamage"] = currentAttackObject.averagedamage;
+      currentLegendaryActionResult["attackbonustohit"] = currentAttackObject.attackbonustohit;
+      currentLegendaryActionResult["attackdescription"] = currentAction.name;
+      currentLegendaryActionResult["numberofattacks"] = 1;
+      currentLegendaryActionResult["hasareaofeffect"] = currentAction.hasAreaTarget;
+      currentLegendaryActionResult["attackobject"] = currentAction;
+      currentLegendaryActionResult["isspell"] = currentAction.type === "spell";
+      currentLegendaryActionResult["legendaryactioncost"] = legedaryActionCost;
+      currentLegendaryActionResult["damagepercost"] = totalAttackDamage / legedaryActionCost;
+      if (pseudoAreaTargetCount)
+      {
+        currentLegendaryActionResult["areaofeffecttargets"] = pseudoAreaTargetCount;
+      }
+
+
+      if (currentAction.hasSave)
+      {
+        currentLegendaryActionResult["savingthrowdc"] = ActorUtils.getSaveDC(currentAction);
+        currentLegendaryActionResult["savingthrowtype"] = ActorUtils.getSavingThrowType(currentAction);
+      }
+
+      legendaryActionList.push(currentLegendaryActionResult);
+    }
+
+    let sortedLegendaryActionList = legendaryActionList.sort(function (a, b)
+    {
+      return b.damagepercost - a.damagepercost;
+    });
+
+    let finalLegendaryActionResult = [];
+    let currentLegendaryActionCost = 0;
+
+    // Loop through up to 5 times in case there is only one legendary action which does damage
+    for (let j = 0; j < 5; j++)
+    {
+      if (currentLegendaryActionCost >= legendaryActionsMax)
+      {
+        break;
+      }
+
+      for (let i = 0; i < sortedLegendaryActionList.length; i++)
+      {
+        let currentAction = sortedLegendaryActionList[i];
+
+        if (currentLegendaryActionCost >= legendaryActionsMax)
+        {
+          break;
+        }
+
+        if (currentLegendaryActionCost + currentAction.legendaryactioncost > legendaryActionsMax)
+        {
+          continue;
+        }
+
+        if (currentAction.averagedamage === 0)
+        {
+          continue;
+        }
+
+        currentLegendaryActionCost += currentAction.legendaryactioncost;
+        finalLegendaryActionResult.push(currentAction);
+      }
+    }
+
+    return finalLegendaryActionResult;
+  }
+
+  static getIfAttackAffectsMultipleCreatures(attackObject)
+  {
+    let attackDataObject = FoundryUtils.getDataObjectFromObject(attackObject);
+    let description = attackDataObject.description.value.toLowerCase();
+    if (description.match(/\beach/i) && description.includes("within") && description.includes("feet"))
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+
+  static getPseudoAreaOfEffectTargetCount(attackObject)
+  {
+    let attackDataObject = FoundryUtils.getDataObjectFromObject(attackObject);
+    let description = attackDataObject.description.value.toLowerCase();
+    if (description.includes("each") && description.includes("within") && description.includes("feet"))
+    {
+      let feetCountMatch = description.match(/(?<distance>\d+) feet/i);
+      if (feetCountMatch)
+      {
+        let distance = feetCountMatch.groups.distance;
+        if (distance <= 10)
+        {
+          return 2;
+        }
+        else if (distance <= 20)
+        {
+          return 3;
+        }
+        else
+        {
+          return 4;
+        }
+      }
+    }
+
+    return null;
+  }
+
   static getBestMultiExtraAttack(actor)
   {
     let multiAttacks = actor.items.filter(i => i.name.toLowerCase() === "multiattack" || i.name.toLowerCase() === "extra attack");
@@ -339,13 +510,18 @@ export class ActorUtils
     return totalDamage;
   }
 
-  static getSpellDataPerRound(actorObject, activationType)
+  static getSpellDataPerRound(actorObject, activationType, spellLevelLimit)
   {
     let allSpellResultObjects = [];
     let actor = actorObject.actor;
     try
     {
       let spellList = actor.items.filter(i => (i.type.toLowerCase() === "spell") && (!activationType || (i.data.data.activation.type === activationType)));
+      if (spellLevelLimit != null)
+      {
+        spellList = spellList.filter(s => FoundryUtils.getDataObjectFromObject(s).level <= spellLevelLimit);
+      }
+
       let bestSpellObject = null;
       let maxDamage = 0;
       for (let i = 0; i < spellList.length; i++)
@@ -537,6 +713,7 @@ export class ActorUtils
 
     bestCombatRound = GeneralUtils.safeArrayAppend(bestCombatRound, actorObject.bonusattackdata);
     bestCombatRound = GeneralUtils.safeArrayAppend(bestCombatRound, actorObject.specialfeatures);
+    bestCombatRound = GeneralUtils.safeArrayAppend(bestCombatRound, actorObject.legendarydata);
 
     return bestCombatRound;
   }

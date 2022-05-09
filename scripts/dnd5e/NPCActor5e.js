@@ -15,6 +15,7 @@ export class NPCActor5e
         this.environment = ActorUtils.getActorEnvironments(this.actor);
         this.attackdata = ActorUtils.getCombatDataPerRound(this);
         this.spelldata = ActorUtils.getSpellDataPerRound(this);
+        this.legendarydata = ActorUtils.getLegendaryActions(this);
         this.combatdata = ActorUtils.getBestCombat(this);
     }
 }
