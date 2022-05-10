@@ -273,17 +273,6 @@ export class ActorUtils
     }
 
     let legendaryActionsMax = actorDataObject.resources.legact.max;
-    let legendaryActionsItem = actor.items.find(i => i.name.toLowerCase() === "legendary actions");
-    /*
-    <p>The dragon can take 3 legendary actions, choosing from the options below. Only one legendary action option can be used at a time and only at the end of another creature's turn. The dragon regains spent legendary actions at the start of its turn.</p>
-    <p><strong>Detect.</strong> The dragon makes a Wisdom (Perception) check.</p>
-    <p><strong>Tail Attack.</strong> The dragon makes a tail attack.</p>
-    <p><strong>Wing Attack (Costs 2 Actions).</strong> The dragon beats its wings. Each creature within 10 feet of the dragon must succeed on a DC 22 Dexterity saving throw or take 15 (2d6 + 8) bludgeoning damage and be knocked prone. The dragon can then fly up to half its flying speed.</p>
-    */
-    let legendaryActionsDataObject = FoundryUtils.getDataObjectFromObject(legendaryActionsItem);
-    let legedaryActionsDescription = legendaryActionsDataObject.description.value;
-    legedaryActionsDescription = legedaryActionsDescription.replaceAll("<p>", "").replaceAll("</p>", "");
-    legedaryActionsDescription = legedaryActionsDescription.replaceAll("<p>", "").replaceAll("</p>", "");
     let legendaryActionsToChooseFrom = actor.items.filter(i => FoundryUtils.getDataObjectFromObject(i).activation.type === "legendary");
 
     let legendaryActionList = [];
@@ -584,13 +573,9 @@ export class ActorUtils
         let sneakAttackDataObject = FoundryUtils.getDataObjectFromObject(sneakAttack);
         let sneakAttackFormula = sneakAttackDataObject.damage.parts[0][0];
         let evaluatedSneakAttack = ActorUtils.resolveMacrosInRollFormula(actorObject, sneakAttackFormula);
-        sneakAttackDamage = ActorUtils.getAverageDamageFromDescription(evaluatedSneakAttack, actorDataObject.abilities.dex.mod);
+        sneakAttackDamage = ActorUtils.getAverageDamageFromDescription(evaluatedSneakAttack, actorDataObject.abilities.dex.mod, actor);
       }
 
-      // let sneakAttackDataObject = FoundryUtils.getDataObjectFromObject(sneakAttack);
-      // let sneakAttackFormula = sneakAttackDataObject.damage.parts[0][0];
-      // let evaluatedSneakAttack = ActorUtils.resolveMacrosInRollFormula(actorObject, sneakAttackFormula);
-      // let sneakAttackDamage = ActorUtils.getAverageDamageFromDescription(evaluatedSneakAttack, actorDataObject.abilities.dex.mod);
       let bestAttackBonus = ActorUtils.getBestChanceAttack(actorObject);
 
       let currentAttackResult = {};
@@ -757,7 +742,7 @@ export class ActorUtils
         damageDescription = damageDescription.replaceAll(abilitiesDescription, abilitiesModValue);
       }
 
-      let totalAverageRollResult = ActorUtils.getAverageDamageFromDescription(damageDescription, abilityModValue);
+      let totalAverageRollResult = ActorUtils.getAverageDamageFromDescription(damageDescription, abilityModValue, actorObject.actor);
 
       if (enemyTargetObject)
       {
@@ -938,7 +923,7 @@ export class ActorUtils
       let damageDescription = attackDataObject.formula;
       damageDescription = damageDescription.toLowerCase().replaceAll(/\[.+\]/gm, "");
 
-      let totalAverageRollResult = ActorUtils.getAverageDamageFromDescription(damageDescription, abilityModValue);
+      let totalAverageRollResult = ActorUtils.getAverageDamageFromDescription(damageDescription, abilityModValue, actorObject.actor);
       if (!isNaN(totalAverageRollResult))
       {
         totalDamageForAttack += totalAverageRollResult;
@@ -961,7 +946,7 @@ export class ActorUtils
           damageDescription = damageDescription.replaceAll(abilitiesDescription, abilitiesModValue);
         }
 
-        let totalAverageRollResult = ActorUtils.getAverageDamageFromDescription(damageDescription, abilityModValue);
+        let totalAverageRollResult = ActorUtils.getAverageDamageFromDescription(damageDescription, abilityModValue, actorObject.actor);
         if (isNaN(totalAverageRollResult))
         {
           if (damageType != "healing")
@@ -1054,9 +1039,11 @@ export class ActorUtils
     }
   }
 
-  static getAverageDamageFromDescription(damageDescription, abilityModValue)
+  static getAverageDamageFromDescription(damageDescription, abilityModValue, actor)
   {
+    let actorDataObject = FoundryUtils.getDataObjectFromObject(actor);
     damageDescription = damageDescription.replaceAll("@mod", abilityModValue);
+    damageDescription = damageDescription.replaceAll("@prof", actorDataObject.prof.flat);
     let matches = [...damageDescription.matchAll(/((?<diceCount>\d+)d(?<diceType>\d+)(?<removeLowRolls>r\<\=(?<lowRollThreshold>\d))?)/gm)];
     for (let i = 0; i < matches.length; i++)
     {
