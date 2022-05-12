@@ -307,19 +307,27 @@ export class ActorUtils
       let pseudoAreaTargetCount = null;
 
       let totalAttackDamage = currentAttackObject.averagedamage;
+      if (totalAttackDamage === 0)
+      {
+        currentAttackObject = ActorUtils.getReferentialLegendaryActions(actorObject, currentAction);
+        if (!currentAttackObject?.averagedamage)
+        {
+          continue;
+        }
+      }
+
       if (currentAction.hasAreaTarget || pseudoAreaTarget)
       {
         pseudoAreaTargetCount = ActorUtils.getPseudoAreaOfEffectTargetCount(currentAction);
         totalAttackDamage = totalAttackDamage * pseudoAreaTargetCount;
       }
-
       let currentLegendaryActionResult = {};
       currentLegendaryActionResult["averagedamage"] = currentAttackObject.averagedamage;
       currentLegendaryActionResult["attackbonustohit"] = currentAttackObject.attackbonustohit;
       currentLegendaryActionResult["attackdescription"] = currentAction.name;
       currentLegendaryActionResult["numberofattacks"] = 1;
       currentLegendaryActionResult["hasareaofeffect"] = currentAction.hasAreaTarget;
-      currentLegendaryActionResult["attackobject"] = currentAction;
+      currentLegendaryActionResult["attackobject"] = currentAttackObject.attackobject;
       currentLegendaryActionResult["isspell"] = currentAction.type === "spell";
       currentLegendaryActionResult["legendaryactioncost"] = legedaryActionCost;
       currentLegendaryActionResult["damagepercost"] = totalAttackDamage / legedaryActionCost;
@@ -379,6 +387,98 @@ export class ActorUtils
     }
 
     return finalLegendaryActionResult;
+  }
+
+  static getReferentialLegendaryActions(actorObject, legendaryActionsItem)
+  {
+    // This code will execute in cases where there is a legendary action which is saying, "Make an attack with FOO". We'll attempt to find the correct object Foo.
+
+    let actor = actorObject.actor;
+    let actorDataObject = FoundryUtils.getDataObjectFromObject(actor);
+    if (!actorDataObject.resources.legact || actorDataObject.resources.legact.max === 0)
+    {
+      return null;
+    }
+
+    let legendaryActionsDataObject = FoundryUtils.getDataObjectFromObject(legendaryActionsItem);
+    let legedaryActionsDescription = legendaryActionsDataObject.description.value;
+    legedaryActionsDescription = legedaryActionsDescription.replaceAll("<p>", "").replaceAll("</p>", "");
+    let legendaryActionsToChooseFrom = actor.items.filter(i =>
+      (i.type != "spell" ||
+        (i.type === "spell" && i.data.data.level === 0))
+      && i.type != "legendary"
+      && i.name.toLowerCase() != "legendary actions");
+
+    let currentlySeenLegendaryActions = [];
+    for (let i = 0; i < legendaryActionsToChooseFrom.length; i++)
+    {
+      let currentPossibleAction = legendaryActionsToChooseFrom[i];
+      if (currentlySeenLegendaryActions.find(a => a === currentPossibleAction.name))
+      {
+        continue;
+      }
+      currentlySeenLegendaryActions.push(currentPossibleAction.name);
+      let legedaryActionCost = 1;
+      let currentActionRegex = new RegExp(`${currentPossibleAction.name}( .costs (?<legendaryActionCost>.) actions.)?`, 'i');
+      let isSpell = false;
+
+      if (currentPossibleAction.type === "spell")
+      {
+        isSpell = true;
+        currentActionRegex = new RegExp(`cantrip`, 'i');
+      }
+
+      let legedaryActionsDescriptionMatch = legedaryActionsDescription.match(currentActionRegex);
+      if (legedaryActionsDescriptionMatch || legedaryActionsDescription.includes(currentPossibleAction.name))
+      {
+        if (legedaryActionsDescriptionMatch)
+        {
+          if (legedaryActionsDescriptionMatch.groups.legendaryActionCost)
+          {
+            legedaryActionCost = legedaryActionsDescriptionMatch.groups.legendaryActionCost;
+          }
+        }
+        else
+        {
+          let nameRegex = currentPossibleAction.name.match(/costs (?<legendaryActionCost>.) actions/i);
+          if (nameRegex)
+          {
+            legedaryActionCost = nameRegex.groups.legendaryActionCost;
+          }
+        }
+
+        let currentAttackObject = isSpell ?
+          ActorUtils.getInfoForSpellObject(currentPossibleAction, actorObject) :
+          ActorUtils.getInfoForAttackObject(currentPossibleAction, 1, actorObject);
+
+        let totalAttackDamage = currentAttackObject.averagedamage;
+        if (currentPossibleAction.hasAreaTarget)
+        {
+          totalAttackDamage = totalAttackDamage * 2;
+        }
+
+        let currentLegendaryActionResult = {};
+        currentLegendaryActionResult["averagedamage"] = currentAttackObject.averagedamage;
+        currentLegendaryActionResult["attackbonustohit"] = currentAttackObject.attackbonustohit;
+        currentLegendaryActionResult["attackdescription"] = currentPossibleAction.name;
+        currentLegendaryActionResult["numberofattacks"] = 1;
+        currentLegendaryActionResult["hasareaofeffect"] = currentPossibleAction.hasAreaTarget;
+        currentLegendaryActionResult["attackobject"] = currentPossibleAction;
+        currentLegendaryActionResult["isspell"] = currentPossibleAction.type === "spell";
+        currentLegendaryActionResult["legendaryactioncost"] = legedaryActionCost;
+        currentLegendaryActionResult["damagepercost"] = totalAttackDamage / legedaryActionCost;
+
+        if (currentPossibleAction.hasSave)
+        {
+          currentLegendaryActionResult["savingthrowdc"] = ActorUtils.getSaveDC(currentPossibleAction);
+          currentLegendaryActionResult["savingthrowtype"] = ActorUtils.getSavingThrowType(currentPossibleAction);
+        }
+
+        return currentLegendaryActionResult;
+      }
+    }
+
+    return null;
   }
 
   static getIfAttackAffectsMultipleCreatures(attackObject)
