@@ -45,7 +45,7 @@ jobs:
         body: ${{ github.event.release.body }}
 
     - name: Publish Module to FoundryVTT Website
-      uses: Varriount/fvtt-autopublish@1.0.6
+      uses: Varriount/fvtt-autopublish@v1.0.6
       with:
         username: ${{ secrets.FOUNDRY_ADMIN_USERNAME }}
         password: ${{ secrets.FOUNDRY_ADMIN_PASSWORD }}
