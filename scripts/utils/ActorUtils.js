@@ -833,14 +833,7 @@ export class ActorUtils
         continue;
       }
 
-      let abilitiesModMatches = [...damageDescription.matchAll(/@abilities\.(str|dex|int|con|wis|cha)\.mod/gm)];
-      for (let j = 0; j < abilitiesModMatches.length; j++)
-      {
-        let abilitiesDescription = abilitiesModMatches[j][0];
-        let newAbilitiesDescription = abilitiesDescription.replaceAll("@abilities.", "parentDataObject.abilities.");
-        let abilitiesModValue = eval(newAbilitiesDescription);
-        damageDescription = damageDescription.replaceAll(abilitiesDescription, abilitiesModValue);
-      }
+      damageDescription = Roll.replaceFormulaData(damageDescription, actorObject.actor.getRollData());
 
       let totalAverageRollResult = ActorUtils.getAverageDamageFromDescription(damageDescription, abilityModValue, actorObject.actor);
 
@@ -1037,14 +1030,7 @@ export class ActorUtils
         let damageDescription = damageArray[0];
         let damageType = damageArray[1];
         damageDescription = damageDescription.toLowerCase().replaceAll(`[${damageType.toLowerCase()}]`, "");
-        let abilitiesModMatches = [...damageDescription.matchAll(/@abilities\.(str|dex|int|con|wis|cha)\.mod/gm)];
-        for (let j = 0; j < abilitiesModMatches.length; j++)
-        {
-          let abilitiesDescription = abilitiesModMatches[j][0];
-          let newAbilitiesDescription = abilitiesDescription.replaceAll("@abilities.", "parentDataObject.abilities.");
-          let abilitiesModValue = eval(newAbilitiesDescription);
-          damageDescription = damageDescription.replaceAll(abilitiesDescription, abilitiesModValue);
-        }
+        damageDescription = Roll.replaceFormulaData(damageDescription, actorObject.actor.getRollData());
 
         let totalAverageRollResult = ActorUtils.getAverageDamageFromDescription(damageDescription, abilityModValue, actorObject.actor);
         if (isNaN(totalAverageRollResult))
@@ -1143,7 +1129,17 @@ export class ActorUtils
   {
     let actorDataObject = FoundryUtils.getDataObjectFromObject(actor);
     damageDescription = damageDescription.replaceAll("@mod", abilityModValue);
-    damageDescription = damageDescription.replaceAll("@prof", actorDataObject.prof.flat);
+    damageDescription = Roll.replaceFormulaData(damageDescription, actor.getRollData());
+
+    let spellDamageQualifierMatches = [...damageDescription.matchAll(/\[.+\]/gm)];
+
+    for (let i = 0; i < spellDamageQualifierMatches.length; i++)
+    {
+      let matchResult = spellDamageQualifierMatches[i];
+      let entireMatchValue = matchResult[0];
+      damageDescription = damageDescription.replaceAll(entireMatchValue, "");
+    }
+
     let matches = [...damageDescription.matchAll(/((?<diceCount>\d+)d(?<diceType>\d+)(?<removeLowRolls>r\<\=(?<lowRollThreshold>\d))?)/gm)];
     for (let i = 0; i < matches.length; i++)
     {
@@ -1161,15 +1157,6 @@ export class ActorUtils
       let diceTypeAverage = (parseInt(diceType) + 1 + extraToAddToAverage) / 2;
       let totalDiceRollAverage = diceTypeAverage * diceCount;
       damageDescription = damageDescription.replaceAll(entireMatchValue, totalDiceRollAverage);
-    }
-
-    let spellDamageQualifierMatches = [...damageDescription.matchAll(/\[.+\]/gm)];
-
-    for (let i = 0; i < spellDamageQualifierMatches.length; i++)
-    {
-      let matchResult = spellDamageQualifierMatches[i];
-      let entireMatchValue = matchResult[0];
-      damageDescription = damageDescription.replaceAll(entireMatchValue, "");
     }
 
     // deal with modules that use a Math.floor function but Math. isn't specified
