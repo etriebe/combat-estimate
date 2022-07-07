@@ -21,7 +21,7 @@ export class FoundryUtils
   {
     if (FoundryUtils.isFoundryVersion10())
     {
-      throw new Error("No V10 work done yet");
+      return obj.token.disposition;
     }
     else
     {
