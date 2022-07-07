@@ -45,7 +45,8 @@
 	z-index: 100;
 }
 
-#CombatEstimateDialog a.entity-link {
+#CombatEstimateDialog a.entity-link,
+#CombatEstimateDialog a.content-link {
 	background-color: transparent;
 	border-color: transparent;
 	background-color: var(--palette-secondary, #116b86);
@@ -80,7 +81,8 @@
 	color: var(--palette-app-background-dark-contrast-text, #f0f0e0);
 }
 
-#CombatEstimateDialog a.entity-link i.fas {
+#CombatEstimateDialog a.entity-link i.fas,
+#CombatEstimateDialog a.content-link i.fas {
 	color: inherit;
 }
 
