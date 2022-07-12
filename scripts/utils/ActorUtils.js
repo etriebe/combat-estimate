@@ -916,7 +916,7 @@ export class ActorUtils
       immunityApplied = true;
     }
 
-    if (enemyTraitsObject.di.custom.match(/(nonmagical|non\-magical)/i) && isPhysicalDamage && !isMagical && !immunityApplied)
+    if (enemyTraitsObject.di.custom?.match(/(nonmagical|non\-magical)/i) && isPhysicalDamage && !isMagical && !immunityApplied)
     {
       totalAverageRollResult = 0;
       immunityApplied = true;
@@ -929,7 +929,7 @@ export class ActorUtils
     }
 
     // Some enemites have resistance to magical weapons too (e.g. Demilich)
-    if (enemyTraitsObject.di.custom.match(/\bmagic\b/i) && isPhysicalDamage && isMagical && !immunityApplied)
+    if (enemyTraitsObject.di.custom?.match(/\bmagic\b/i) && isPhysicalDamage && isMagical && !immunityApplied)
     {
       totalAverageRollResult = 0;
       immunityApplied = true;
@@ -942,14 +942,14 @@ export class ActorUtils
       resistanceApplied = true;
     }
 
-    if (enemyTraitsObject.dr.custom.match(/(nonmagical|non\-magical)/i) && isPhysicalDamage && !isMagical && !resistanceApplied)
+    if (enemyTraitsObject.dr.custom?.match(/(nonmagical|non\-magical)/i) && isPhysicalDamage && !isMagical && !resistanceApplied)
     {
       totalAverageRollResult = totalAverageRollResult * 0.5;
       resistanceApplied = true;
     }
 
     // Some enemites have resistance to magical weapons too (e.g. Demilich)
-    if (enemyTraitsObject.dr.custom.match(/\bmagic\b/i) && isPhysicalDamage && isMagical && !resistanceApplied)
+    if (enemyTraitsObject.dr.custom?.match(/\bmagic\b/i) && isPhysicalDamage && isMagical && !resistanceApplied)
     {
       totalAverageRollResult = totalAverageRollResult * 0.5;
       resistanceApplied = true;
@@ -961,7 +961,7 @@ export class ActorUtils
       resistanceApplied = true;
     }
 
-    if (enemyTraitsObject.dr.custom.match(/silver/i) && isPhysicalDamage && !isSilvered && !resistanceApplied)
+    if (enemyTraitsObject.dr.custom?.match(/silver/i) && isPhysicalDamage && !isSilvered && !resistanceApplied)
     {
       totalAverageRollResult = totalAverageRollResult * 0.5;
       resistanceApplied = true;
