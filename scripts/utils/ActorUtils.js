@@ -1004,9 +1004,13 @@ export class ActorUtils
   static getInfoForAttackObject(attackObject, numberOfAttacks, actorObject, enemyTargetObject)
   {
     let abilityModType = attackObject.abilityMod;
+    let abilityModValue = 0;
     let attackDataObject = FoundryUtils.getDataObjectFromObject(attackObject);
     let parentDataObject = FoundryUtils.getDataObjectFromObject(attackObject.parent);
-    let abilityModValue = eval("parentDataObject.abilities." + abilityModType + ".mod");
+    if (abilityModType)
+    {
+      let abilityModValue = eval("parentDataObject.abilities." + abilityModType + ".mod");
+    }
     let damageList = attackDataObject.damage.parts;
 
     let totalDamageForAttack = 0;
