@@ -230,7 +230,7 @@ export class CombatEstimateDialog extends FormApplication
 			let averageChanceToHit = attackChanceTotal / attackChances.length;
 			return averageChanceToHit;
 		}
-		else if (currentAttack.savingThrowType)
+		else if (currentAttack.savingthrowtype)
 		{
 			// Saving throw workflow
 			let savingThrowDC = currentAttack.savingthrowdc;
