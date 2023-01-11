@@ -136,6 +136,13 @@ export class CombatEstimateDialog extends FormApplication
 		{
 			let currentAttack = actorObject.combatdata[i];
 			let chanceToHit = this.getAttackChanceToHit(currentAttack, enemyCombatants);
+
+			if (!chanceToHit)
+			{
+				console.warn(`Unable to determine how likely attack ${currentAttack.attackdescription} is to hit so skipping.`);
+				continue;
+			}
+
 			let halfDamageOnSave = this.getAttackHalfDamageOnSave(currentAttack);
 
 			let averageDamageList = [];
