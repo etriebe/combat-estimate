@@ -67,6 +67,7 @@
 #CombatEstimateDialog .encounter-percentchance,
 #CombatEstimateDialog .encounter-expecteddamage,
 #CombatEstimateDialog .encounter-enemyhp,
+#CombatEstimateDialog .encounter-chancetouse,
 #CombatEstimateDialog .encounter-roundstodown,
 #CombatEstimateDialog .legend-item {
 	border-top-width: 0px;

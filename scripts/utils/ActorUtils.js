@@ -133,6 +133,7 @@ export class ActorUtils
       }
 
       let multiAttack = ActorUtils.getBestMultiExtraAttack(actor);
+      let multiAttackResultObjects = []
       if (multiAttack)
       {
         // Description types supported:
@@ -195,7 +196,7 @@ export class ActorUtils
 
           if (previousAttackIndex != -1)
           {
-            let previousAttackObject = allAttackResultObjects.pop();
+            let previousAttackObject = multiAttackResultObjects.pop();
 
             // Check to see if an or is between the previous attack object and the current
             let orMatchesBetweenAttacks = orMatches.filter(o => o.index > previousAttackIndex && o.index < currentAttackIndex);
@@ -205,48 +206,82 @@ export class ActorUtils
               if ((ActorUtils.getTotalDamageForAttackObject(currentAttackObject)) >
                 (ActorUtils.getTotalDamageForAttackObject(previousAttackObject)))
               {
-                allAttackResultObjects.push(currentAttackObject);
+                multiAttackResultObjects.push(currentAttackObject);
               }
               else
               {
-                allAttackResultObjects.push(previousAttackObject);
+                multiAttackResultObjects.push(previousAttackObject);
               }
             }
             else
             {
-              allAttackResultObjects.push(previousAttackObject);
-              allAttackResultObjects.push(currentAttackObject);
+              multiAttackResultObjects.push(previousAttackObject);
+              multiAttackResultObjects.push(currentAttackObject);
             }
           }
           else
           {
-            allAttackResultObjects.push(currentAttackObject);
+            multiAttackResultObjects.push(currentAttackObject);
             // console.log(`Adding attack ${attackObject.name} for ${actor.name}`);
           }
           previousAttackIndex = currentAttackIndex;
         }
 
-        if (allAttackResultObjects.length === 0)
+        if (multiAttackResultObjects.length === 0)
         {
           let guessedAttack = ActorUtils.guessActorMultiAttack(attackList, multiAttackDescription, actorObject);
           if (guessedAttack)
           {
             console.log(`Attempted to guess attack for ${actor.name}: ${guessedAttack.numberofattacks} ${guessedAttack.attackdescription} attacks.`);
-            allAttackResultObjects.push(guessedAttack);
+            multiAttackResultObjects.push(guessedAttack);
           }
         }
       }
-      else
+
+      let bestAttackObject = ActorUtils.getBestSingleAttack(attackList, actorObject);
+      if (!bestAttackObject && multiAttackResultObjects.length == 0)
       {
-        let bestAttackObject = ActorUtils.getBestSingleAttack(attackList, actorObject);
-        if (!bestAttackObject)
+        return allAttackResultObjects;
+      }
+      let currentAttackObject = ActorUtils.getInfoForAttackObject(bestAttackObject, 1, actorObject);
+      if (bestAttackObject)
+      {
+        let totalPossibleMultiAttackDamage = 0;
+        for (let i = 0; i < multiAttackResultObjects.length; i++)
         {
+          const currentMultiAttack = multiAttackResultObjects[i];
+          totalPossibleMultiAttackDamage += currentMultiAttack.averagedamage * currentMultiAttack.numberofattacks;
+        }
+
+        let totalBestAttackDamage = currentAttackObject.averagedamage * currentAttackObject.numberofattacks;
+        if (currentAttackObject.hasareaofeffect)
+        {
+          totalBestAttackDamage = totalBestAttackDamage * 2;
+        }
+
+        if (totalBestAttackDamage > totalPossibleMultiAttackDamage)
+        {
+          if (currentAttackObject.attackobject.system.recharge?.value)
+          {
+            currentAttackObject["chancetouseattack"] = ((6 - currentAttackObject.attackobject.system.recharge.value) + 1) / 6;
+            allAttackResultObjects.push(currentAttackObject);
+
+            for (let i = 0; i < multiAttackResultObjects.length; i++)
+            {
+              const currentMultiAttack = multiAttackResultObjects[i];
+              currentMultiAttack["chancetouseattack"] = 1 - (((6 - currentAttackObject.attackobject.system.recharge.value) + 1) / 6);
+              allAttackResultObjects.push(currentMultiAttack);
+            }
+
+            return allAttackResultObjects;
+          }
+
+          allAttackResultObjects.push(currentAttackObject);
           return allAttackResultObjects;
         }
-        let currentAttackObject = ActorUtils.getInfoForAttackObject(bestAttackObject, 1, actorObject);
-        if (bestAttackObject)
+        else
         {
-          allAttackResultObjects.push(currentAttackObject);
+          return multiAttackResultObjects;
         }
       }
 

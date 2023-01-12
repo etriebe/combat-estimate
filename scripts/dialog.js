@@ -182,6 +182,11 @@ export class CombatEstimateDialog extends FormApplication
 				expectedDamage = expectedDamage * actualTargetCount;
 			}
 
+			if (currentAttack.chancetouseattack)
+			{
+				expectedDamage = expectedDamage * currentAttack.chancetouseattack;
+			}
+
 			totalExpectedDamage += expectedDamage;
 			combatSummaryHTML += `<li class="single-attack"><div>`;
 			// combatSummaryHTML += FoundryUtils.getItemLink(currentAttack.attackobject);
@@ -189,7 +194,11 @@ export class CombatEstimateDialog extends FormApplication
 			combatSummaryHTML += `<span class="encounter-numberofattacks"> x ${currentAttack.numberofattacks}</span>`;
 			combatSummaryHTML += `<span class="encounter-averagedamage">AvDmg: ${currentAttack.averagedamage * currentAttack.numberofattacks}</span>`;
 			combatSummaryHTML += `<span class="encounter-percentchance">% Hit: ${(chanceToHit * 100).toFixed(0)}%</span>`;
-			combatSummaryHTML += `<span class="encounter-percentchance">ExDmg: ${expectedDamage.toFixed(1)}</span>`;
+			if (currentAttack.chancetouseattack)
+			{
+				combatSummaryHTML += `<span class="encounter-chancetouse">% Use: ${(currentAttack.chancetouseattack * 100).toFixed(0)}</span>`;
+			}
+			combatSummaryHTML += `<span class="encounter-expecteddamage">ExDmg: ${expectedDamage.toFixed(1)}</span>`;
 			combatSummaryHTML += `</div></li>`;
 			attackNumber++;
 		}
@@ -230,7 +239,7 @@ export class CombatEstimateDialog extends FormApplication
 			let averageChanceToHit = attackChanceTotal / attackChances.length;
 			return averageChanceToHit;
 		}
-		else if (currentAttack.savingThrowType)
+		else if (currentAttack.savingthrowtype)
 		{
 			// Saving throw workflow
 			let savingThrowDC = currentAttack.savingthrowdc;
