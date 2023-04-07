@@ -1044,7 +1044,7 @@ export class ActorUtils
     let parentDataObject = FoundryUtils.getDataObjectFromObject(attackObject.parent);
     if (abilityModType)
     {
-      let abilityModValue = eval("parentDataObject.abilities." + abilityModType + ".mod");
+      abilityModValue = eval("parentDataObject.abilities." + abilityModType + ".mod");
     }
     let damageList = attackDataObject.damage.parts;
 
