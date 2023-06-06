@@ -8,6 +8,9 @@
 ![Forge Installs](https://img.shields.io/badge/dynamic/json?label=Forge%20Installs&query=package.installs&suffix=%25&url=https%3A%2F%2Fforge-vtt.com%2Fapi%2Fbazaar%2Fpackage%2Fcombat-estimate&colorB=4aa94a)
 
 
+# NOTE: This module's functionality has been folded into Stochastic Fantastic. Please download [this](https://foundryvtt.com/packages/dnd-randomizer) module instead ([Github](https://github.com/etriebe/dnd-randomizer)). 
+
+
 # How to use Combat-Estimate
 
 1. Create a combat on your scene
